@@ -3,7 +3,7 @@
  *
  * Created on 10/08/2007. Copyright Raphael (synthaxerrors@gmail.com)
  *
- * Classe permettant de rep廨torier les tuiles jet嶪s
+ * Classe permettant de rep撱系orier les Tiles jet撊泅
  * 
  * This file is part of Open Mahjong.
  * 
@@ -22,9 +22,9 @@
  */
 import java.util.Random;
 
+
 import javax.swing.JLabel;
 
-import java.applet.*;
 
 public class Discard {
 
@@ -33,24 +33,24 @@ public class Discard {
 	public static int Y1 = 140;
 	public static int Y2 = 490;
 	
-	int tableau[][] = new int[9][6];		// tableau pour compter les tuiles jet嶪s (9 num廨os sur 6 couleurs)
-	JLabel[] cptTuile = new JLabel[14];	// text label pour l'affichage du nb de tuiles jet嶪 pour le joueur
-	Tuile discardedTile = new Tuile();
+	int table[][] = new int[9][6];		// tableau pour compter les Tiles jet撊泅 (9 num撱矣s sur 6 couleurs)
+	JLabel[] cptTile = new JLabel[14];	// text label pour l'affichage du nb de Tiles jet撊�pour le joueur
+	Tile discarded = new Tile();
 	JLabel discardedTileLabl = new JLabel();
-	JLabel[] oldTilesLabl = new JLabel[Main.NB_TUILES];
-	int nbOldTile = 0;
+	JLabel[] oldTilesLabl = new JLabel[Main.NB_Tiles];
+	int nbOld = 0;
 	
 	public Discard() {
 		for(int i=0; i<9; i++){
 			for(int j=0;j<6;j++){
-				tableau[i][j] = 0;
+				table[i][j] = 0;
 			}
 		}
 		
-		for(int i=0; i<cptTuile.length; i++){
-			cptTuile[i] = new JLabel();
-			cptTuile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// plac�sous les tuiles du joueur
-			cptTuile[i].setText("");
+		for(int i=0; i<cptTile.length; i++){
+			cptTile[i] = new JLabel();
+			cptTile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// plac嚙編ous les Tiles du joueur
+			cptTile[i].setText("");
 		}
 		
 		Random randint = new Random();
@@ -76,14 +76,14 @@ public class Discard {
 	public void init(){
 		for(int i=0; i<9; i++){
 			for(int j=0;j<6;j++){
-				tableau[i][j] = 0;
+				table[i][j] = 0;
 			}
 		}
-		for(int i=0; i<Main.NB_TUILES; i++){
+		for(int i=0; i<Main.NB_Tiles; i++){
 			oldTilesLabl[i].setIcon(null);
 		}
-		discardedTile = new Tuile();
-		nbOldTile = 0;
+		discarded = new Tile();
+		nbOld = 0;
 		discardedTileLabl.setIcon(null);
 	}
 
@@ -96,61 +96,58 @@ public class Discard {
 	}
 
 	/**
-	 * ajoute nb fois la tuile t au tableau
+	 * ajoute nb fois la Tile t au tableau
 	 */
-	public void declare(Tuile t, int nb){
-		tableau[t.chiffre-1][t.valeurCouleur()-1] +=nb;
+	public void declare(Tile t, int nb){
+		table[t.牌面-1][t.valeurCouleur()-1] +=nb;
 		
 
 	}
 	
 	/**
-	 * affiche la nouvelle tuile jet嶪 au milieu du plateau 
+	 * affiche la nouvelle Tile jet撊�au milieu du plateau 
 	 */
-	public void discardTile(Tuile t){
-		discardedTile = t;
+	public void discardTile(Tile t){
+		discarded = t;
 		discardedTileLabl.setIcon(t.donneIcon(false));
 	}
 	
 	/**
-	 * Quand personne ne prend la tuile jet嶪
-	 */
+	 * Quand personne ne prend la Tile jet撊�	 */
 	public void flushDiscardedTile(){
-		if(!discardedTile.isEmpty()){
-			declare(discardedTile, 1);
+		if(!discarded.isEmpty()){
+			declare(discarded, 1);
 			//TODO
-//			oldTilesLabl[nbOldTile].setIcon(discardedTile.donneIcon(true));		
-			nbOldTile++;
+//			oldTilesLabl[nbOld].setIcon(discarded.donneIcon(true));		
+			nbOld++;
 		}
-		discardedTile = new Tuile();
+		discarded = new Tile();
 		discardedTileLabl.setIcon(null);
 	}
 	/**
-	 * Quand qqun prend la tuile jet嶪
-	 */
+	 * Quand qqun prend la Tile jet撊�	 */
 	public void takeDiscardedTile(){
-		discardedTile = new Tuile();
+		discarded = new Tile();
 		discardedTileLabl.setIcon(null);
 	}
 	
-	public Tuile getDiscard(){
-		return discardedTile;
+	public Tile getDiscard(){
+		return discarded;
 	}
 	
 
 	/**
-	 * affiche le nombre de tuile jet嶪 pour chaque tuile de la mainCache
-	 * si l'option est activ嶪
-	 */
-	public void affiche(Jeu main){
+	 * affiche le nombre de Tile jet撊�pour chaque Tile de la mainCache
+	 * si l'option est activ撊�	 */
+	public void affiche(Game main){
 		int cpt=0;
 		for(int i=0; i<14; i++){
-			cptTuile[i].setText("");
+			cptTile[i].setText("");
 		}
 		if(Main.montreDiscard){
 			for(int i=0; i<14; i++){
-				for(int j=0; j<main.figures[i].nbTuile; j++){
-					cptTuile[cpt].setText(""+nbJet(main.figures[i].tuile));
+				for(int j=0; j<main.figures[i].nbTile; j++){
+					cptTile[cpt].setText(""+nbJet(main.figures[i].tile));
 					cpt++;
 				}
 			}
@@ -158,11 +155,10 @@ public class Discard {
 	}
 	
 	/**
-	 * renvoie le nombre de fois que la tuile t a 彋�jet嶪
-	 */
-	public int nbJet(Tuile t){
+	 * renvoie le nombre de fois que la Tile t a 敶蕭jet撊�	 */
+	public int nbJet(Tile t){
 		int valeur = t.valeurCouleur();
-		if(valeur>0 && valeur<7) return tableau[t.chiffre-1][t.valeurCouleur()-1];
+		if(valeur>0 && valeur<7) return table[t.牌面-1][t.valeurCouleur()-1];
 		else return 0;
 	}
 

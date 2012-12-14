@@ -3,8 +3,7 @@
  *
  * Created on 22/08/2007. Copyright Raphael (synthaxerrors@gmail.com
  *
- * Classe rep�sentant un groupe de tuile faisant un figure (seule, paire, pung, kong, cach�/expos�
- * 
+ * Classe rep撱占ntant un groupe de tile faisant un figure (seule, paire, pung, kong, cach嚙箴xpos嚙�* 
  * This file is part of Open Mahjong.
  * 
  * Open Mahjong is free software: you can redistribute it and/or modify
@@ -26,43 +25,43 @@ import javax.swing.ImageIcon;
 public class Figure {
 	
 	
-	Tuile tuile;
-	int nbTuile;
+	Tile tile;
+	int nbTile;
 	Main.typeFig type;
-	boolean estCache;
+	boolean isCover;
 	
 	Figure(){
-		tuile = new Tuile();
-		nbTuile = 0;
+		tile = new Tile();
+		nbTile = 0;
 		type = Main.typeFig.SIMPLE;
-		estCache = true;
+		isCover = true;
 	}
 	
-	Figure(Tuile t, int nb){
+	Figure(Tile t, int nb){
 		
-		tuile = new Tuile(t);
-		nbTuile = nb;
+		tile = new Tile(t);
+		nbTile = nb;
 		majType();
-		estCache = true;
+		isCover = true;
 	}
 	
 	Figure(Figure f){
-		tuile = new Tuile(f.tuile);
-		nbTuile = f.nbTuile;
+		tile = new Tile(f.tile);
+		nbTile = f.nbTile;
 		type = f.type;
-		estCache = f.estCache;
+		isCover = f.isCover;
 	}
 	
 	private void majType(){
-		switch(nbTuile){
+		switch(nbTile){
 		case 2: 
-			type = Main.typeFig.PAIRE;
+			type = Main.typeFig.PAIR;
 			break;
 		case 3:
-			type = Main.typeFig.PUNG;
+			type = Main.typeFig.PONG;
 			break;
 		case 4:
-			type = Main.typeFig.KONG;
+			type = Main.typeFig.GUNG;
 			break;
 		case 0:
 		case 1:
@@ -73,30 +72,30 @@ public class Figure {
 	}
 
 	public void expose(){
-		estCache = false;
+		isCover = false;
 	}
 	
-	public boolean ajoutTuile(Tuile t){
-		if(nbTuile<4){		//il doit y avoir moins de 4 tuile ds la figure
-			if(nbTuile==0){		//si la figure est libre
-				tuile = new Tuile(t);	//on met � jour la tuile de la figure
+	public boolean addTile(Tile t){
+		if(nbTile<4){		//il doit y avoir moins de 4 tile ds la figure
+			if(nbTile==0){		//si la figure est libre
+				tile = new Tile(t);	//on met 嚙篌our la tile de la figure
 			}
-			else if(t.nom.compareTo(tuile.nom)!=0){	//sinon la tuile doit �tre la m�me que celle de la figure
+			else if(t.name.compareTo(tile.name)!=0){	//sinon la tile doit �裸e la m�庸 que celle de la figure
 				return false;
 			}
-			nbTuile++;
+			nbTile++;
 			majType();
 			return true;
 		}
 		else{return false;}
 	}
 	
-	public boolean enleveTuile(){
-		if(nbTuile>0){
-			nbTuile--;
+	public boolean removedTile(){
+		if(nbTile>0){
+			nbTile--;
 			majType();
-			if(nbTuile == 0){
-				tuile = new Tuile();
+			if(nbTile == 0){
+				tile = new Tile();
 			}
 			return true;
 		}
@@ -110,51 +109,51 @@ public class Figure {
 	 * gagnant vaut true si le joueur fait mahjong
 	 * vent est le vent du joueur (1~4)
 	 */
-	public int getValeur(boolean gagnant, int vent){
+	public int getValue(boolean winner, int vent){
 		
 		int score = 0;
-		switch (tuile.couleur){
+		switch (tile.color){
 		case 'f':
 		case 's':
 			score = 4;	//fleur/saison : 4pts
 			break;
 		case 'v':
 		case 'd':
-			if(type == Main.typeFig.PUNG){
+			if(type == Main.typeFig.PONG){
 				score = 8; //pung dragon/vent : 8pts
 			}
-			else if(type == Main.typeFig.KONG){
+			else if(type == Main.typeFig.GUNG){
 				score = 16;	//kong dragon/vent : 16pts
 			}
-			else if(gagnant &&((tuile.couleur == 'd' || (tuile.couleur =='v' && (tuile.chiffre==Main.ventDominant || tuile.chiffre==(vent+1)))))){
+			else if(winner &&((tile.color == 'd' || (tile.color =='v' && (tile.牌面==Main.ventDominant || tile.牌面==(vent)))))){
 				score = 2;	// une paire du vent dominant ou du joueur ou de dragon vaut 2 point si le joueur est gagnant
 			}
 			break;
 		case 'c':
 		case 'r':
 		case 'b':
-			if(tuile.chiffre == 1 || tuile.chiffre == 9){
-				if(type == Main.typeFig.PUNG){
-					score = 8;	// pung de 1/9 rond/bamboo/caract�res : 8pts
+			if(tile.牌面 == 1 || tile.牌面 == 9){
+				if(type == Main.typeFig.PONG){
+					score = 8;	// pung de 1/9 rond/bamboo/caract�牠s : 8pts
 				}
-				else if(type == Main.typeFig.KONG){
-					score = 16;	// kong de 1/9 rond/bamboo/caract�res : 16pts
+				else if(type == Main.typeFig.GUNG){
+					score = 16;	// kong de 1/9 rond/bamboo/caract�牠s : 16pts
 				}
 			}
 			else{
-				if(type == Main.typeFig.PUNG){
-					score = 4;	// pung de autre rond/bamboo/caract�res : 4pts
+				if(type == Main.typeFig.PONG){
+					score = 4;	// pung de autre rond/bamboo/caract�牠s : 4pts
 				}
-				else if(type == Main.typeFig.KONG){
-					score = 8;	// kong de autre rond/bamboo/caract�res : 8pts
+				else if(type == Main.typeFig.GUNG){
+					score = 8;	// kong de autre rond/bamboo/caract�牠s : 8pts
 				}
 			}
 			break;
 		default:
 			break;
 		}
-		if(estCache == true && ((type == Main.typeFig.PUNG) ||(type == Main.typeFig.KONG))){
-			score*=2;		//double le score si combi cach�e
+		if(isCover == true && ((type == Main.typeFig.PONG) ||(type == Main.typeFig.GUNG))){
+			score*=2;		//double le score si combi cach撊�		
 		}
 		return score;
 	}
@@ -162,19 +161,19 @@ public class Figure {
 	 *	Retoune le nombre de multiplicateur par 2 de la combi
 	 * vent est le vent du joueur (1~4) 
 	 */
-	public int getMulti(int vent){
+	public int getMulti(int wind){
 		int multi = 0;
-		if((type == Main.typeFig.PUNG) ||(type == Main.typeFig.KONG)){
-			if(tuile.couleur == 'd'){	// un double pour une combi de dragon
+		if((type == Main.typeFig.PONG) ||(type == Main.typeFig.GUNG)){
+			if(tile.color == 'd'){	// un double pour une combi de dragon
 				multi += 1;
 			}
-			if((tuile.couleur == 'v') && tuile.chiffre == (vent+1)){
+			if((tile.color == 'v') && tile.牌面 == (wind+1)){
 				multi +=1;		// un double une combi du vent du joueur 
 			}
-			if( tuile.couleur == 'v' && tuile.chiffre == Main.ventDominant){
+			if( tile.color == 'v' && tile.牌面 == Main.ventDominant){
 				multi +=1;		// un double pour une combi du vent dominant 
 			}
-		}else if((tuile.couleur == 'f' || tuile.couleur == 's') && tuile.chiffre == (vent+1)){
+		}else if((tile.color == 'f' || tile.color == 's') && tile.牌面 == (wind+1)){
 			multi +=1;		// un double pour la saison/fleur du joueur
 		}
 		
@@ -183,43 +182,43 @@ public class Figure {
 	
 	
 	
-	public boolean estInferieure(Figure fig)
+	public boolean isBottom(Figure fig)
 	{
-		return this.tuile.estInferieure(fig.tuile);
+		return this.tile.isBottom(fig.tile);
 	}
 	
-	public boolean estLibre(){
-		return tuile.nom.length()==0;
+	public boolean isFree(){
+		return tile.name.length()==0;
 	}
 	
-	public boolean estHonneur(){
-		return (tuile.couleur == 's') || (tuile.couleur == 'f'); 
+	public boolean is字牌(){
+		return (tile.color == 's') || (tile.color == 'f'); 
 	}
 	
-	public boolean estNormal(){
-		return (tuile.couleur == 'c') || (tuile.couleur == 'r')|| (tuile.couleur == 'b'); 
+	public boolean isNormal(){
+		return (tile.color == 'c') || (tile.color == 'r')|| (tile.color == 'b'); 
 	}
 	
-	public String nom(){
-		return tuile.nom;
+	public String name(){
+		return tile.name;
 	}
 	
-	public char couleur(){
-		return tuile.couleur;
+	public char get_colour(){
+		return tile.color;
 	}
 	
-	public int chiffre(){
-		return tuile.chiffre;
+	public int get_牌面(){
+		return tile.牌面;
 	}
 	
 	public ImageIcon donneIcon(int angle, boolean isGrayed){
 		ImageIcon result;
 		
 		if(angle != 0){
-			result = Main.rotationIcon(tuile.donneIcon(isGrayed),angle); 
+			result = Main.rotationIcon(tile.donneIcon(isGrayed),angle); 
 		}
 		else{
-			result = tuile.donneIcon(isGrayed); 
+			result = tile.donneIcon(isGrayed); 
 		}
 		return result;
 	}
