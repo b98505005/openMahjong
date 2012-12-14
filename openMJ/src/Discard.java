@@ -3,7 +3,7 @@
  *
  * Created on 10/08/2007. Copyright Raphael (synthaxerrors@gmail.com)
  *
- * Classe permettant de repértorier les tuiles jetées
+ * Classe permettant de repå»¨torier les tuiles jetå¶ªs
  * 
  * This file is part of Open Mahjong.
  * 
@@ -24,6 +24,7 @@ import java.util.Random;
 
 import javax.swing.JLabel;
 
+import java.applet.*;
 
 public class Discard {
 
@@ -32,8 +33,8 @@ public class Discard {
 	public static int Y1 = 140;
 	public static int Y2 = 490;
 	
-	int tableau[][] = new int[9][6];		// tableau pour compter les tuiles jetées (9 numéros sur 6 couleurs)
-	JLabel[] cptTuile = new JLabel[14];	// text label pour l'affichage du nb de tuiles jetée pour le joueur
+	int tableau[][] = new int[9][6];		// tableau pour compter les tuiles jetå¶ªs (9 numå»¨os sur 6 couleurs)
+	JLabel[] cptTuile = new JLabel[14];	// text label pour l'affichage du nb de tuiles jetå¶ª pour le joueur
 	Tuile discardedTile = new Tuile();
 	JLabel discardedTileLabl = new JLabel();
 	JLabel[] oldTilesLabl = new JLabel[Main.NB_TUILES];
@@ -48,7 +49,7 @@ public class Discard {
 		
 		for(int i=0; i<cptTuile.length; i++){
 			cptTuile[i] = new JLabel();
-			cptTuile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// placé sous les tuiles du joueur
+			cptTuile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// placï¿½sous les tuiles du joueur
 			cptTuile[i].setText("");
 		}
 		
@@ -104,7 +105,7 @@ public class Discard {
 	}
 	
 	/**
-	 * affiche la nouvelle tuile jetée au milieu du plateau 
+	 * affiche la nouvelle tuile jetå¶ª au milieu du plateau 
 	 */
 	public void discardTile(Tuile t){
 		discardedTile = t;
@@ -112,7 +113,7 @@ public class Discard {
 	}
 	
 	/**
-	 * Quand personne ne prend la tuile jetée
+	 * Quand personne ne prend la tuile jetå¶ª
 	 */
 	public void flushDiscardedTile(){
 		if(!discardedTile.isEmpty()){
@@ -125,7 +126,7 @@ public class Discard {
 		discardedTileLabl.setIcon(null);
 	}
 	/**
-	 * Quand qqun prend la tuile jetée
+	 * Quand qqun prend la tuile jetå¶ª
 	 */
 	public void takeDiscardedTile(){
 		discardedTile = new Tuile();
@@ -138,8 +139,8 @@ public class Discard {
 	
 
 	/**
-	 * affiche le nombre de tuile jetée pour chaque tuile de la mainCache
-	 * si l'option est activée
+	 * affiche le nombre de tuile jetå¶ª pour chaque tuile de la mainCache
+	 * si l'option est activå¶ª
 	 */
 	public void affiche(Jeu main){
 		int cpt=0;
@@ -157,7 +158,7 @@ public class Discard {
 	}
 	
 	/**
-	 * renvoie le nombre de fois que la tuile t a été jetée
+	 * renvoie le nombre de fois que la tuile t a å½‹ï¿½jetå¶ª
 	 */
 	public int nbJet(Tuile t){
 		int valeur = t.valeurCouleur();
