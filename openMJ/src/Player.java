@@ -154,7 +154,7 @@ public class Player{
 	/**
 	 * retourne true si le joueur peut faire un pung ou kong ou s'il fait Mahjong avec cette Tile
 	 */
-	public boolean canPrendre(Tile t){
+	public boolean canTake(Tile t){
 		if(t.name.length() != 0 ){
 			if(mainPlayer.aPair(t)){
 				return true;
@@ -177,7 +177,7 @@ public class Player{
 	/**
 	 * Met �jour et affiche tous les label d'un joueur 
 	 */
-	public void affiche(){
+	public void poster(){
 		trierGame();
 		afficheMainCache();
 		afficheMainExpose();
@@ -206,7 +206,7 @@ public class Player{
 						labelCover[cpt].setIcon(mainPlayer.figures[i].donneIcon(-90, false));
 					}
 					else{
-						labelCover[cpt].setIcon(Tile.donneFond270());
+						labelCover[cpt].setIcon(Tile.giveBackground270());
 					}
 					cpt++;
 				break;
@@ -215,7 +215,7 @@ public class Player{
 						labelCover[cpt].setIcon(mainPlayer.figures[i].donneIcon(0, false));
 					}
 					else{
-						labelCover[cpt].setIcon(Tile.donneFond());
+						labelCover[cpt].setIcon(Tile.giveBackground());
 					}
 					cpt++;
 				break;
@@ -224,7 +224,7 @@ public class Player{
 						labelCover[cpt].setIcon(mainPlayer.figures[i].donneIcon(90, false));
 					}
 					else{
-						labelCover[cpt].setIcon(Tile.donneFond90());
+						labelCover[cpt].setIcon(Tile.giveBackground90());
 					}
 					cpt++;
 				break;
@@ -312,9 +312,9 @@ public class Player{
 		index=a字牌();
 		if(index>=0){
 			if(this.numero == 0){
-				Main.displayText("Vous d嶰larez la "+mainPlayer.figures[index].tile.name);
+				Main.displayText("You draw the "+mainPlayer.figures[index].tile.name);
 			}else{
-				Main.displayText(this.name+"(J"+(this.numero+1)+") d嶰lare la "+mainPlayer.figures[index].tile.name);
+				Main.displayText(this.name+"(玩家"+(this.numero+1)+") draw the "+mainPlayer.figures[index].tile.name);
 			}
 			mainExpose.addsFigure(mainPlayer.figures[index], false);
 			mainPlayer.retireFigure(index);
@@ -328,22 +328,22 @@ public class Player{
 		String message;
 		
 		if(this.numero == 0){
-			message = "Vous d嶰larez ";
+			message = "You declarez ";
 		}else{
-			message = this.name+"((J"+(this.numero+1)+") d嶰lare ";
+			message = this.name+"((J"+(this.numero+1)+") declare ";
 		}
 		
 		if(mainPlayer.figures[i].nbTile == 4){
-			message += "un Kong de "+mainPlayer.figures[i].tile.name;
+			message += "槓了 "+mainPlayer.figures[i].tile.name;
 		}else if(mainPlayer.figures[i].nbTile == 3){
-			message += "un Pung de "+mainPlayer.figures[i].tile.name;	
+			message += "碰了 "+mainPlayer.figures[i].tile.name;	
 		}else if(mainPlayer.figures[i].nbTile == 2){
-			message += "Mahjong avec une paire de "+mainPlayer.figures[i].nbTile;
+			message += "Mahjong avec une pair the "+mainPlayer.figures[i].nbTile;
 		}else{
-			message += "1 Tiles de "+mainPlayer.figures[i].nbTile;
+			message += "1 Tiles of "+mainPlayer.figures[i].nbTile;
 		}
 		
-		if(estCache){ message += " cach�";}
+		if(estCache){ message += " cover";}
 		
 		Main.displayText(message);
 		mainExpose.addsFigure(mainPlayer.figures[i], estCache);
@@ -391,10 +391,10 @@ public class Player{
 		return result;
 	}
 	
-	public int multiBonus(boolean gagnant){
+	public int multiBonus(boolean winner){
 		int result = 0;
 		// Verifie si le jeu est pur 
-		if(gagnant && mainPlayer.isPure() && mainExpose.isPure()){// si les 2 mains sont pur
+		if(winner && mainPlayer.isPure() && mainExpose.isPure()){// si les 2 mains sont pur
 			if( (mainPlayer.colour() == mainExpose.colour())//et de mm couleur 
 					|| mainPlayer.colour()==0 || mainExpose.colour() == 0){ // ou si l'une ne contient que des honneurs  
 				result += 3;												//Le jeu est pur => 3 doubles
@@ -409,7 +409,7 @@ public class Player{
 		}
 		
 		// 1 double si les 4 combinaisons sont des brelans ou carr廥 de Tiles majeures
-		if(gagnant && mainPlayer.onlyTileMaj() && mainExpose.onlyTileMaj()){
+		if(winner && mainPlayer.onlyTileMaj() && mainExpose.onlyTileMaj()){
 			result++;
 		}
 		

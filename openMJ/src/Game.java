@@ -146,7 +146,7 @@ public class Game {
 		int cpt=0;
 		for(int i=0; i<sizeMax; i++){
 			if(figures[i].type == Main.typeFig.GUNG && figures[i].isCover==true
-					&& figures[i].tile.color == color){
+					&& figures[i].tile.牌面種類 == color){
 				cpt++;
 			}
 		}
@@ -423,7 +423,7 @@ public class Game {
 		int result = 0;
 		
 		for(int i=0; i<sizeMax; i++){
-			if(figures[i].tile.color == couleur){
+			if(figures[i].tile.牌面種類 == couleur){
 				if(figures[i].type == figure){
 					result ++;
 				}//un kong cach�peut compter comme 2 paires
@@ -444,7 +444,7 @@ public class Game {
 		int result = 0;
 		
 		for(int i=0; i<sizeMax; i++){
-			if(figures[i].tile.color == couleur && figures[i].tile.牌面 == 牌面){
+			if(figures[i].tile.牌面種類 == couleur && figures[i].tile.牌面大小 == 牌面){
 				if(figures[i].type == figure){
 					result ++;
 				}//un kong cach�peut compter comme 2 paires
@@ -483,7 +483,7 @@ public class Game {
 		int result = 0;
 		
 		for(int i=0; i<sizeMax; i++){
-			if(figures[i].tile.color == colour){
+			if(figures[i].tile.牌面種類 == colour){
 				if(figures[i].type == Main.typeFig.GUNG || figures[i].type == Main.typeFig.PONG){
 					result ++;
 				}
@@ -499,7 +499,7 @@ public class Game {
 		int result = 0;
 		
 		for(int i=0; i<sizeMax; i++){
-			if(figures[i].tile.color == couleur && figures[i].tile.牌面 == chiffre){
+			if(figures[i].tile.牌面種類 == couleur && figures[i].tile.牌面大小 == chiffre){
 				if(figures[i].type == Main.typeFig.GUNG || figures[i].type == Main.typeFig.PONG){
 					result ++;
 				}

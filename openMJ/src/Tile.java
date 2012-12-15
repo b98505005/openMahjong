@@ -29,50 +29,50 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 public class Tile {
-	int 牌面 ;
-	char color;
+	int 牌面大小 ;
+	char 牌面種類;
 	String name ;
 
 	public Tile(){
-		牌面 = 0;
-		color = 0;
+		牌面大小 = 0;
+		牌面種類 = 0;
 		name = new String("");
 	}
 	public Tile(Tile t){
-		牌面 = t.牌面;
-		color = t.color;
+		牌面大小 = t.牌面大小;
+		牌面種類 = t.牌面種類;
 		name = new String(t.name);
 	}
 
 	public Tile ( int c , char f){
-		牌面 = c ;
-		color = f ;
+		牌面大小 = c ;
+		牌面種類 = f ;
 		
-		switch(color){
+		switch(牌面種類){
 		case('c'):
-			name = new String(c+" caract鋨e");
+			name = new String(c+" 萬字");
 			break;
 		case('b'):
-			name = new String(c+" bambou");
+			name = new String(c+" 條子");
 			break;
 		case('r'):
-			name = new String(c+" rond");
+			name = new String(c+" 桶子");
 			break;
 		case('d'):
-			switch(牌面){
+			switch(牌面大小){
 			case(1):
-				name = new String("dragon rouge");
+				name = new String("dragon 紅中");
 				break;
 			case(2):
-				name = new String("dragon blanc");
+				name = new String("dragon 白板");
 				break;
 			case(3):
-				name = new String("dragon vert");
+				name = new String("dragon 發");
 				break;
 			}
 		break;
 		case('v'):
-			switch(牌面){
+			switch(牌面大小){
 			case(1):
 				name = new String("東風");
 				break;
@@ -88,10 +88,10 @@ public class Tile {
 			}
 		break;
 		case('s'):
-			name = new String("saison "+牌面);
+			name = new String("season "+牌面大小);
 			break;
 		case('f'):
-			name = new String("fleur "+牌面);
+			name = new String("flower "+牌面大小);
 			break;
 		}
 	}
@@ -101,20 +101,20 @@ public class Tile {
 	{
 		boolean resultat = false;
 		
-		if(this.valeurCouleur() < Tile.valeurCouleur()){
+		if(this.valueColor() < Tile.valueColor()){
 			resultat = true;
-		}else if(this.valeurCouleur() == Tile.valeurCouleur()){
-			if(this.牌面 < Tile.牌面){
+		}else if(this.valueColor() == Tile.valueColor()){
+			if(this.牌面大小 < Tile.牌面大小){
 				resultat = true;
 			}
 		}
 		return resultat;
 	}
 	
-	public int valeurCouleur()
+	public int valueColor()
 	{
-		int resultat = 0;	//valeur pour Tile 'null'
-		switch(color){
+		int resultat = 0;	//judge dragon, 字桶條, windCard
+		switch(牌面種類){
 		case('b'):
 			resultat = 1; 
 			break;
@@ -141,15 +141,15 @@ public class Tile {
 	}
 	
 	/** 
-	 * Donne l'image de fond des cartes
+	 * Covered tile's image
 	 */
-	public static ImageIcon donneFond(){
+	public static ImageIcon giveBackground(){
 		return new ImageIcon("images/fond.jpg"); 
 	}
-	public static ImageIcon donneFond90(){
+	public static ImageIcon giveBackground90(){
 		return new ImageIcon("images/fond90.jpg"); 
 	}
-	public static ImageIcon donneFond270(){
+	public static ImageIcon giveBackground270(){
 		return new ImageIcon("images/fond270.jpg"); 
 	}
 	public ImageIcon donneIcon(boolean isGrayed){
@@ -157,7 +157,7 @@ public class Tile {
 
 		if(isGrayed){
 			BufferedImage image = null; 
-			File file = new File("images/"+牌面+color+".jpg");
+			File file = new File("images/"+牌面大小+牌面種類+".jpg");
 	        try {
 	            image = ImageIO.read(file);
 	        } catch (IOException ex) {
@@ -167,18 +167,18 @@ public class Tile {
 	        image = Main.convertToGrayscale(image);
 	        result = new ImageIcon(image);
 		}else{
-			result = new ImageIcon("images/"+牌面+color+".jpg");
+			result = new ImageIcon("images/"+牌面大小+牌面種類+".jpg");
 		}
 		
 		return result;
 	}
 	
-	public boolean egale(Tile t){
-		return (this.牌面 == t.牌面 && this.color == t.color);
+	public boolean equal(Tile t){
+		return (this.牌面大小 == t.牌面大小 && this.牌面種類 == t.牌面種類);
 	}
 
 	public boolean isEmpty(){
-		if(this.牌面 == 0 || this.color==0)
+		if(this.牌面大小 == 0 || this.牌面種類==0)
 			return true;
 		else
 			return false;

@@ -34,7 +34,7 @@ public class Discard {
 	public static int Y2 = 490;
 	
 	int table[][] = new int[9][6];		// tableau pour compter les Tiles jet撊泅 (9 num撱矣s sur 6 couleurs)
-	JLabel[] cptTile = new JLabel[14];	// text label pour l'affichage du nb de Tiles jet撊�pour le joueur
+	JLabel[] handTile = new JLabel[14];	// text label pour l'affichage du nb de Tiles jet撊�pour le joueur
 	Tile discarded = new Tile();
 	JLabel discardedTileLabl = new JLabel();
 	JLabel[] oldTilesLabl = new JLabel[Main.NB_Tiles];
@@ -47,10 +47,10 @@ public class Discard {
 			}
 		}
 		
-		for(int i=0; i<cptTile.length; i++){
-			cptTile[i] = new JLabel();
-			cptTile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// plac嚙編ous les Tiles du joueur
-			cptTile[i].setText("");
+		for(int i=0; i<handTile.length; i++){
+			handTile[i] = new JLabel();
+			handTile[i].setBounds(Main.X+(i*37)+15,Main.Y+52,10,10);	// plac嚙編ous les Tiles du joueur
+			handTile[i].setText("");
 		}
 		
 		Random randint = new Random();
@@ -99,7 +99,7 @@ public class Discard {
 	 * ajoute nb fois la Tile t au tableau
 	 */
 	public void declare(Tile t, int nb){
-		table[t.牌面-1][t.valeurCouleur()-1] +=nb;
+		table[t.牌面大小-1][t.valueColor()-1] +=nb;
 		
 
 	}
@@ -142,12 +142,12 @@ public class Discard {
 	public void affiche(Game main){
 		int cpt=0;
 		for(int i=0; i<14; i++){
-			cptTile[i].setText("");
+			handTile[i].setText("");
 		}
 		if(Main.montreDiscard){
 			for(int i=0; i<14; i++){
 				for(int j=0; j<main.figures[i].nbTile; j++){
-					cptTile[cpt].setText(""+nbJet(main.figures[i].tile));
+					handTile[cpt].setText(""+nbJet(main.figures[i].tile));
 					cpt++;
 				}
 			}
@@ -157,8 +157,8 @@ public class Discard {
 	/**
 	 * renvoie le nombre de fois que la Tile t a 敶蕭jet撊�	 */
 	public int nbJet(Tile t){
-		int valeur = t.valeurCouleur();
-		if(valeur>0 && valeur<7) return table[t.牌面-1][t.valeurCouleur()-1];
+		int valeur = t.valueColor();
+		if(valeur>0 && valeur<7) return table[t.牌面大小-1][t.valueColor()-1];
 		else return 0;
 	}
 

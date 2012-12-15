@@ -44,17 +44,18 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.StringTokenizer;
 
+
 public class Main extends JFrame {
 
 	public static enum typeFig {SIMPLE, PAIR, PONG, GUNG};
 
-	public static String[][] nomIA  = new String[][]{
-		{"Philippe Risoli", "Bruce Willis", "Goethe", "Mao Tse Tung"},
-		{"Dieu", "Mon chat","Batman","Anonyme"},
-		{"JC Van Damme", "George Bush","Naboleon","Kim Jong-Il"}
+	public static String[][] nameIA  = new String[][]{
+		{"高鴨穩乃", "新子憧", "松實玄", "松實宥"},
+		{"宮永照", "大星淡","亦野誠子","弘世堇"},
+		{"園城寺怜", "清水谷龍華","船久保浩子","愛宕雅枝"}
 	};
 	
-	/*Scores des Mahjong sp嶰iaux (idx0 ne compte pas)
+	/*Scores des Mahjong speciaux (idx0 ne compte pas)
 	 * 
 	 */
 	public static int[] SCORE_MAHJONG_SPE = {0, 800, 1000, 1300, 1300, 1300, 1300, 1600, 1700, 2000, 2500, 
@@ -72,10 +73,10 @@ public class Main extends JFrame {
 	private static final long serialVersionUID = 1L;
 	public static final int X = 180 ;
 	public static final int Y = 650;
-	public static final int ひがし = 0;
-	public static final int きた = 1;
-	public static final int にし = 2;
-	public static final int みなみ = 3;
+	public static final int EAST = 0;
+	public static final int NORTH = 1;
+	public static final int WEST = 2;
+	public static final int SOUTH = 3;
 	public static final int NB_IA = 4;
 	public static final int NB_Tiles = 144;
 	public static final boolean ASCENDANT = true;
@@ -84,7 +85,7 @@ public class Main extends JFrame {
 	/* VARIABLES GLOBALES */
 	public static boolean montreJeu = false ;
 	public static boolean montreDiscard = true ;
-	public static int ventDominant;
+	public static int windDominant;
 
 	/* ATTRIBUTS */
 	public Container container = null;
@@ -95,7 +96,7 @@ public class Main extends JFrame {
 	JLabel labelWindDom = new JLabel();
 	Timer timer;
 	int timerCpt = 0;
-	int aQuiDeJouer = 0;
+	int nowPlayer = 0;
 	Discard trash_can = new Discard();
 	int[] highScore = new int[5];
 	int bestScore = 0;
@@ -115,9 +116,9 @@ public class Main extends JFrame {
 	JMenuItem about = new JMenuItem("about");
 
 	/* Boutons*/
-	JButton jouer = new JButton("Play");
-	JButton declar = new JButton("Declare");
-	JButton prendre = new JButton("Prendre");
+	JButton play = new JButton("Play");
+	JButton declare = new JButton("Declare");
+	JButton takeOthersTile = new JButton("Prendre");
 
 	/* log textbox */
 	static JTextArea textBox = new JTextArea();
@@ -149,16 +150,16 @@ public class Main extends JFrame {
 					// v廨ifie si un des ordi peut prendre la Tile du milieu pour faire un Mahjong
 					for(int i=1; i<4; i++){
 						if(players[i].canMahjong(discard)){
-							players[i].addsTile(discard);	//r嶰up鋨e la Tile
+							players[i].addsTile(discard);	//recup鋨e la Tile
 							players[i].declareFigure(discard, false);
-							aQuiDeJouer = i;
+							nowPlayer = i;
 							trash_can.takeDiscardedTile();
-							finPartie(i);	
+							finPart(i);	
 							return;
 						}
 					}
 					for(int i=1; i<4; i++){ 	 //un ordi peut-il prendre la Tile pour faire une mainExpose ? 
-						if(players[i].canPrendre(discard) && aQuiDeJouer!=i){  //ce joueur peut-il prendre ? 
+						if(players[i].canTake(discard) && nowPlayer!=i){  //ce joueur peut-il prendre ? 
 							int cpt = 0;
 
 							System.out.print(players[i].name+" prend la Tile\n");
@@ -169,44 +170,44 @@ public class Main extends JFrame {
 							trash_can.takeDiscardedTile();
 							trash_can.declare(discard, cpt-1); //ajoute les Tiles �la poubelle
 
-							players[aQuiDeJouer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur pr嶰edent
-							aQuiDeJouer = i;	//donne la mainCache au joueur qui prend
+							players[nowPlayer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur precedent
+							nowPlayer = i;	//donne la mainCache au joueur qui prend
 							
 							trash_can.affiche(players[0].mainPlayer);
 							if(cpt==4){
-								//displayText(joueurs[i].nom+"("+joueurs[i].numero+") d嶰lare un kong");
-								partie(true);
+								//displayText(joueurs[i].nom+"("+joueurs[i].numero+") declare un kong");
+								part(true);
 							}
 							else{
-								//displayText(joueurs[i].nom+"("+joueurs[i].numero+") d嶰lare un pung");
-								partie(false);
+								//displayText(joueurs[i].nom+"("+joueurs[i].numero+") declare un pung");
+								part(false);
 							}
 							return;		 //retour car ce prog est fait n'importe comment... 
 						}
 					}
 					// personne ne prendre la Tile jet嶪
 					trash_can.flushDiscardedTile();
-					jouer.setText("Jouer");
-					aQuiDeJouer = (aQuiDeJouer+1)%4;	//joueur suivant
-					partie(true);
+					play.setText("Jouer");
+					nowPlayer = (nowPlayer+1)%4;	//joueur suivant
+					part(true);
 				}
 				else if(timerCpt>0){	 //le timer est toujours actif 
 
-					jouer.setEnabled(true);
-					jouer.setText("Passer "+(timerCpt));	// maj du label du bouton
+					play.setEnabled(true);
+					play.setText("剩下 "+(timerCpt) +"秒決定");	// maj du label du bouton
 					timerCpt--;
 				}
 			}
 		};
 
-		/* d嶰laration du timer d'1s*/
+		/* declaration du timer d'1s*/
 		timer = new Timer(1000,actionTimer);
 
 		/* Menu */
 		menuBar.add(fich);
 		new_game.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt){
-				nouveauJeu();
+				newGame();
 			}
 		});
 		fich.add(new_game);
@@ -260,9 +261,10 @@ public class Main extends JFrame {
 			public void actionPerformed(ActionEvent evt){
 				JOptionPane.showMessageDialog(null,
 						"Open Mahjong\n"+
-						"Ce programme est sous license GPL V3. Vous pouvez librement le redistribuer et/ou le modifier.\n"+
+						"The program is sous license GPL V3. Code modified by NTU csie AI course Team \n"+
 						"http://openmahjong.sourceforge.net"+
-						"Raphael(synthaxerrors@gmail.com)","A propos ...",JOptionPane.INFORMATION_MESSAGE);
+						"Raphael(synthaxerrors@gmail.com)","A propos ..."
+						,JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		info.add(about);
@@ -274,7 +276,7 @@ public class Main extends JFrame {
 		labelRest.setBounds(720, 50, 150, 10);
 		container.add(labelRest);
 		for(int i=0; i<14; i++){
-			container.add(trash_can.cptTile[i]);
+			container.add(trash_can.handTile[i]);
 		}
 		for(int i=(Main.NB_Tiles-1); i>=0; i--){
 			container.add(trash_can.oldTilesLabl[i]);
@@ -287,10 +289,10 @@ public class Main extends JFrame {
 		}
 		/* initialisation des label de la mainCache et des combi des joueurs */
 		for (int i=0; i<14; i++){
-			players[0].labelCover[i] = new JLabel(Tile.donneFond());
-			players[1].labelCover[i] = new JLabel(Tile.donneFond270());
-			players[2].labelCover[i] = new JLabel(Tile.donneFond());
-			players[3].labelCover[i] = new JLabel(Tile.donneFond90());
+			players[0].labelCover[i] = new JLabel(Tile.giveBackground());
+			players[1].labelCover[i] = new JLabel(Tile.giveBackground270());
+			players[2].labelCover[i] = new JLabel(Tile.giveBackground());
+			players[3].labelCover[i] = new JLabel(Tile.giveBackground90());
 
 			players[0].labelCover[i].setBounds(X+(i*37),Y,37,49);
 			players[1].labelCover[i].setBounds(X+750,Y-550+(i*37),49,37);
@@ -352,35 +354,35 @@ public class Main extends JFrame {
 
 
 		/* Boutons */
-		jouer.setText("Jouer");
-		jouer.setEnabled(false);
-		jouer.addActionListener(new ActionListener(){
+		play.setText("Play");
+		play.setEnabled(false);
+		play.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt){
 				play();
 			}
 		});
-		jouer.setBounds(870,630, 100, 25);
-		container.add(jouer);
+		play.setBounds(870,630, 100, 25);
+		container.add(play);
 
-		declar.setText("D嶰larer");
-		declar.setEnabled(false);
-		declar.addActionListener(new ActionListener(){
+		declare.setText("Declarer");
+		declare.setEnabled(false);
+		declare.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt){
 				declarer();
 			}
 		});
-		declar.setBounds(870,655, 100, 25);
-		container.add(declar);
+		declare.setBounds(870,655, 100, 25);
+		container.add(declare);
 
-		prendre.setText("Prendre");
-		prendre.setEnabled(false);
-		prendre.addActionListener(new ActionListener(){
+		takeOthersTile.setText("吃/碰");
+		takeOthersTile.setEnabled(false);
+		takeOthersTile.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt){
-				prendre();
+				takeDisgard();
 			}
 		});
-		prendre.setBounds(870,680, 100, 25);
-		container.add(prendre);
+		takeOthersTile.setBounds(870,680, 100, 25);
+		container.add(takeOthersTile);
 
 		textBox.setEditable(false);
 		areaScrollPane.setBounds(600, 420, 260, 150);
@@ -397,7 +399,7 @@ public class Main extends JFrame {
 		};
 		MouseInputAdapter mou = new MouseInputAdapter(){
 			public void mouseClicked(MouseEvent evt){
-				mouse_clic(evt);
+				mouse_click(evt);
 			}
 		};
 		/* Ajout des Listener */
@@ -417,29 +419,29 @@ public class Main extends JFrame {
 	/** 
 	 * G鋨e les clics de la souris
 	 */
-	void mouse_clic(MouseEvent evt){
-		int x = evt.getX();
-		int y = evt.getY();
+	void mouse_click(MouseEvent event){
+		int x = event.getX();
+		int y = event.getY();
 		int temp = players[0].TileSelect;
 
-		if(aQuiDeJouer == 0){ //clique pris en compte uniquement si c'est au joueur de jouer
+		if(nowPlayer == 0){ //clique pris en compte uniquement si c'est au joueur de jouer
 			for (int i=0; i<14; i++){
 				//le clique est-il sur une Tile? 
 				if ((x>(X+i*37))&&(x<(X+(i+1)*37))&&(y>(Y+50))&&(y<(Y+99))){
 					if(players[0].mainPlayer.isEmpty(i) == false) {	// test si la Tile i existe
-						if(temp < 0){	// aucune Tile n'avait 彋�s幨嶰tion�avant 
-							players[0].labelCover[i].setBounds(X+37*i, Y-10, 37, 49);	//d嶰alage vers le haut
+						if(temp < 0){	// aucune Tile n'avait 彋�s幨ection�avant 
+							players[0].labelCover[i].setBounds(X+37*i, Y-10, 37, 49);	//decalage vers le haut
 							players[0].TileSelect = i;									//m幦orisation de la Tile
 						}
-						else{	//une Tile avait d嶴�彋�s幨嶰tion嶪
+						else{	//une Tile avait d嶴�彋�s幨ection嶪
 							players[0].labelCover[temp].setBounds(X+37*temp, Y, 37, 49);	//on remet la Tile d'avant en place
 
-							if(players[0].TileSelect != i){	//la Tile s幨嶰tion嶪 n'est pas la m瘱e qu'avant
-								players[0].labelCover[i].setBounds(X+37*i, Y-10, 37, 49);	//d嶰alage vers le haut
+							if(players[0].TileSelect != i){	//la Tile s幨ection嶪 n'est pas la m瘱e qu'avant
+								players[0].labelCover[i].setBounds(X+37*i, Y-10, 37, 49);	//decalage vers le haut
 								players[0].TileSelect = i;									//m幦orisation de la Tile
 							}
-							else{								//la m瘱e Tile est s幨嶰tion嶪
-								players[0].TileSelect = -1;		//aucune Tile n'est s幨嶰tion嶪
+							else{								//la m瘱e Tile est s幨ection嶪
+								players[0].TileSelect = -1;		//aucune Tile n'est s幨ection嶪
 							}
 						}
 					}
@@ -480,7 +482,7 @@ public class Main extends JFrame {
 		if(montreJeux.getState() != montreJeu){
 			montreJeu = montreJeux.getState();
 			for(int i=0; i<4; i++){
-				players[i].affiche();
+				players[i].poster();
 			}
 		}
 
@@ -496,7 +498,7 @@ public class Main extends JFrame {
 	/**
 	 * Cr嶪 un nouveau jeu (les scores sont remis �0)
 	 */
-	void nouveauJeu(){
+	void newGame(){
 		boolean temp;
 		Random rand = new Random(); 
 		JTextField jTF1;
@@ -506,18 +508,18 @@ public class Main extends JFrame {
 		timer.stop();
 		trash_can.init();
 
-		ventDominant = rand.nextInt(4)+1;
-		switch(ventDominant){
-		case(ひがし+1):
+		windDominant = rand.nextInt(4)+1;
+		switch(windDominant){
+		case(EAST+1):
 			labelWindDom.setText("場風: 東");
 		break;
-		case(きた+1):
+		case(NORTH+1):
 			labelWindDom.setText("場風: 北");
 		break;
-		case(にし+1):
+		case(WEST+1):
 			labelWindDom.setText("場風: 西");
 		break;
-		case(みなみ+1):
+		case(SOUTH+1):
 			labelWindDom.setText("場風: 南");
 		break;
 		default: 
@@ -525,12 +527,12 @@ public class Main extends JFrame {
 		break;
 		}
 
-		players[0].name = "Moi";
+		players[0].name = "我";
 		jTF1 = new JTextField(players[0].name);
 
-		jCB1 = new JComboBox(nomIA[0]);
-		jCB2 = new JComboBox(nomIA[1]);
-		jCB3 = new JComboBox(nomIA[2]);
+		jCB1 = new JComboBox(nameIA[0]);
+		jCB2 = new JComboBox(nameIA[1]);
+		jCB3 = new JComboBox(nameIA[2]);
 		jCB1.setSelectedIndex(rand.nextInt(NB_IA));
 		jCB2.setSelectedIndex(rand.nextInt(NB_IA));
 		jCB3.setSelectedIndex(rand.nextInt(NB_IA));
@@ -559,102 +561,102 @@ public class Main extends JFrame {
 		}
 
 		//maj des type d'IA
-		players[1].name = nomIA[0][jCB1.getSelectedIndex()];
-		players[2].name = nomIA[1][jCB2.getSelectedIndex()];
-		players[3].name = nomIA[2][jCB3.getSelectedIndex()];
+		players[1].name = nameIA[0][jCB1.getSelectedIndex()];
+		players[2].name = nameIA[1][jCB2.getSelectedIndex()];
+		players[3].name = nameIA[2][jCB3.getSelectedIndex()];
 		players[1].typeIA = jCB1.getSelectedIndex();
 		players[2].typeIA = jCB2.getSelectedIndex();
 		players[3].typeIA = jCB3.getSelectedIndex();
 
-		aQuiDeJouer = rand.nextInt(4);
+		nowPlayer = rand.nextInt(4);
 
 		/* Texte, couleur correspondant au vent du joueur */
-		players[aQuiDeJouer].風 = ひがし;
-		players[aQuiDeJouer].labelWind.setText("東(1)");
-		players[aQuiDeJouer].labelWind.setForeground(new Color(220,40,40));
+		players[nowPlayer].風 = EAST;
+		players[nowPlayer].labelWind.setText("東(1)"+players[nowPlayer].name);
+		players[nowPlayer].labelWind.setForeground(new Color(220,40,40));
 
-		players[(aQuiDeJouer+1)%4].風 = きた;
-		players[(aQuiDeJouer+1)%4].labelWind.setText("北(2)");
-		players[(aQuiDeJouer+1)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+1)%4].風 = NORTH;
+		players[(nowPlayer+1)%4].labelWind.setText("北(2)"+players[(nowPlayer+1)%4].name);
+		players[(nowPlayer+1)%4].labelWind.setForeground(new Color(0,0,0));
 
-		players[(aQuiDeJouer+2)%4].風 = にし;
-		players[(aQuiDeJouer+2)%4].labelWind.setText("西(3)");
-		players[(aQuiDeJouer+2)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+2)%4].風 = WEST;
+		players[(nowPlayer+2)%4].labelWind.setText("西(3)"+players[(nowPlayer+2)%4].name);
+		players[(nowPlayer+2)%4].labelWind.setForeground(new Color(0,0,0));
 
-		players[(aQuiDeJouer+3)%4].風 = みなみ;
-		players[(aQuiDeJouer+3)%4].labelWind.setText("南(4)");
-		players[(aQuiDeJouer+3)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+3)%4].風 = SOUTH;
+		players[(nowPlayer+3)%4].labelWind.setText("南(4)"+players[(nowPlayer+3)%4].name);
+		players[(nowPlayer+3)%4].labelWind.setForeground(new Color(0,0,0));
 
 		/* met la bonne image et la bonne orientation des vents */
-		switch(aQuiDeJouer){
+		switch(nowPlayer){
 		case 0:
-			players[aQuiDeJouer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),-90));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),90));
+			players[nowPlayer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
+			players[(nowPlayer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),-90));
+			players[(nowPlayer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
+			players[(nowPlayer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),90));
 			break;
 		case 1:
-			players[aQuiDeJouer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),-90));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),90));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
+			players[nowPlayer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),-90));
+			players[(nowPlayer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
+			players[(nowPlayer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),90));
+			players[(nowPlayer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
 			break;
 		case 2:
-			players[aQuiDeJouer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),90));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),-90));
+			players[nowPlayer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
+			players[(nowPlayer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),90));
+			players[(nowPlayer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
+			players[(nowPlayer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),-90));
 			break;
 		case 3:
-			players[aQuiDeJouer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),90));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),-90));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
+			players[nowPlayer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),90));
+			players[(nowPlayer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
+			players[(nowPlayer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),-90));
+			players[(nowPlayer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
 			break;
 		}
 
 		/* Initialise */
 		initPick();
-		initJoueurs();
+		initPlayers();
 
 
 		/* initialisation des jeux */
 		for(int i=0; i<4; i++){
 			do{
 				temp = players[i].declareHonor();
-				if(temp) piocheTiles(players[i]);
+				if(temp) pickTiles(players[i]);
 			}while(temp);
-			players[i].affiche();
+			players[i].poster();
 		}
 		if(players[0].TileSelect>=0){
 			players[0].labelCover[players[0].TileSelect].setBounds(X+37*players[0].TileSelect, Y, 37, 49);
 			players[0].TileSelect = -1;
 		}
-		jouer.setText("Jouer");
+		play.setText("Play");
 
-		if(aQuiDeJouer == 0){ // c'est au joueur de jouer
+		if(nowPlayer == 0){ // c'est au joueur de jouer
 			if(players[0].槓()>=0 || players[0].aMahjong()){
-				declar.setEnabled(true);	//le joueur peut d嶰larer une combi ou un mahjong
+				declare.setEnabled(true);	//le joueur peut declarer une combi ou un mahjong
 			}
 			else{
-				declar.setEnabled(false);
+				declare.setEnabled(false);
 			}
-			jouer.setEnabled(true);
-			prendre.setEnabled(false);
+			play.setEnabled(true);
+			takeOthersTile.setEnabled(false);
 		}
 		else{	/* les ordinateurs jouent */
-			declar.setEnabled(false);
-			jouer.setEnabled(false);
-			prendre.setEnabled(false);
-			IAJoue(aQuiDeJouer);
+			declare.setEnabled(false);
+			play.setEnabled(false);
+			takeOthersTile.setEnabled(false);
+			IAJoue(nowPlayer);
 		}
 	}
 
 	/**
 	 * Cr嶪 une nouvelle partie (score non remis �0)
-	 * @param estGagne : vrai si le vent d'est a gagn�(les vents ne tournent pas)
+	 * @param isWin : vrai si le vent d'est a gagn�(les vents ne tournent pas)
 	 */
-	void nouvellePartie(boolean estGagne){
+	void nouvellePartie(boolean isWin){
 		Random rand = new Random(); 
 
 		textBox.setText("Nouvelle Partie\n");
@@ -662,19 +664,19 @@ public class Main extends JFrame {
 		initPick();
 		trash_can.init();
 
-		ventDominant = rand.nextInt(4)+1;
-		switch(ventDominant){
-		case(ひがし):
-			labelWindDom.setText("Vent Dominant: Est");
+		windDominant = rand.nextInt(4)+1;
+		switch(windDominant){
+		case(EAST):
+			labelWindDom.setText("場風: 東");
 		break;
-		case(きた):
-			labelWindDom.setText("Vent Dominant: Nord");
+		case(NORTH):
+			labelWindDom.setText("場風: 北");
 		break;
-		case(にし):
-			labelWindDom.setText("Vent Dominant: Ouest");
+		case(WEST):
+			labelWindDom.setText("場風: 西");
 		break;
-		case(みなみ):
-			labelWindDom.setText("Vent Dominant: Sud");
+		case(SOUTH):
+			labelWindDom.setText("場風: 南");
 		break;
 		}
 		displayText(labelWindDom.getText());
@@ -688,7 +690,7 @@ public class Main extends JFrame {
 				players[j].labelExpose[i].setIcon(null);
 			}
 			//fait tourner les vents si le vent d'est n'a pas gagner
-			if(estGagne==false){	
+			if(isWin==false){	
 				players[j].風 = (players[j].風+3)%4;
 			}
 			//13 Tiles par joueur
@@ -696,63 +698,63 @@ public class Main extends JFrame {
 				players[j].addsTile(pick[indexPick++]);
 			}
 			//une Tile de plus pour le joueur de l'est
-			if(players[j].風==ひがし){
+			if(players[j].風==EAST){
 				players[j].addsTile(pick[indexPick++]);
-				aQuiDeJouer = j;
+				nowPlayer = j;
 			}
 		}
-		if(estGagne==false){
-			displayText("Le vent tourne...");
+		if(isWin==false){
+			displayText("大風吹起, 轉換風向 ...");
 		}
 		//Texte, couleur correspondant au vent du joueur
-		players[aQuiDeJouer].labelWind.setText("EST(1)");
-		players[aQuiDeJouer].labelWind.setForeground(new Color(220,40,40));
+		players[nowPlayer].labelWind.setText("EAST(1)");
+		players[nowPlayer].labelWind.setForeground(new Color(220,40,40));
 
-		players[(aQuiDeJouer+1)%4].labelWind.setText("NORD(2)");
-		players[(aQuiDeJouer+1)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+1)%4].labelWind.setText("NORTH(2)");
+		players[(nowPlayer+1)%4].labelWind.setForeground(new Color(0,0,0));
 
-		players[(aQuiDeJouer+2)%4].labelWind.setText("OUEST(3)");
-		players[(aQuiDeJouer+2)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+2)%4].labelWind.setText("WEST(3)");
+		players[(nowPlayer+2)%4].labelWind.setForeground(new Color(0,0,0));
 
-		players[(aQuiDeJouer+3)%4].labelWind.setText("SUD(4)");
-		players[(aQuiDeJouer+3)%4].labelWind.setForeground(new Color(0,0,0));
+		players[(nowPlayer+3)%4].labelWind.setText("SOUTH(4)");
+		players[(nowPlayer+3)%4].labelWind.setForeground(new Color(0,0,0));
 
 		//met la bonne image et la bonne orientation des vents
-		switch(aQuiDeJouer){
+		switch(nowPlayer){
 		case 0:
-			players[aQuiDeJouer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),-90));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),90));
+			players[nowPlayer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
+			players[(nowPlayer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),-90));
+			players[(nowPlayer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
+			players[(nowPlayer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),90));
 			break;
 		case 1:
-			players[aQuiDeJouer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),-90));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),90));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
+			players[nowPlayer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),-90));
+			players[(nowPlayer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
+			players[(nowPlayer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),90));
+			players[(nowPlayer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
 			break;
 		case 2:
-			players[aQuiDeJouer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),90));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),-90));
+			players[nowPlayer].labelWind.setIcon(new ImageIcon("images/1v.jpg"));
+			players[(nowPlayer+1)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/2v.jpg"),90));
+			players[(nowPlayer+2)%4].labelWind.setIcon(new ImageIcon("images/3v.jpg"));
+			players[(nowPlayer+3)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/4v.jpg"),-90));
 			break;
 		case 3:
-			players[aQuiDeJouer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),90));
-			players[(aQuiDeJouer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
-			players[(aQuiDeJouer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),-90));
-			players[(aQuiDeJouer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
+			players[nowPlayer].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/1v.jpg"),90));
+			players[(nowPlayer+1)%4].labelWind.setIcon(new ImageIcon("images/2v.jpg"));
+			players[(nowPlayer+2)%4].labelWind.setIcon(Main.rotationIcon(new ImageIcon("images/3v.jpg"),-90));
+			players[(nowPlayer+3)%4].labelWind.setIcon(new ImageIcon("images/4v.jpg"));
 			break;
 		}
 
 		boolean temp = false;
-		//chaque joueur d嶰lare les fleurs et les saisons
+		//chaque joueur declare les fleurs et les saisons
 		for(int i=0; i<4; i++){
 			do{
 				temp = players[i].declareHonor();
-				if(temp) piocheTiles(players[i]);
+				if(temp) pickTiles(players[i]);
 			}while(temp);
-			players[i].affiche();
+			players[i].poster();
 		}
 		trash_can.affiche(players[0].mainPlayer);
 		//remet les Tiles du joueur au bon endroit
@@ -760,22 +762,22 @@ public class Main extends JFrame {
 			players[0].labelCover[players[0].TileSelect].setBounds(X+37*players[0].TileSelect, Y, 37, 49);
 			players[0].TileSelect = -1;
 		}
-		jouer.setText("Jouer");
-		if(aQuiDeJouer == 0){ //c'est au joueur joue
+		play.setText("Play");
+		if(nowPlayer == 0){ //c'est au joueur joue
 			if(players[0].槓()>=0 || players[0].aMahjong()){
-				declar.setEnabled(true);	//le joueur peut d嶰larer une combi ou un mahjong
+				declare.setEnabled(true);	//le joueur peut declarer une combi ou un mahjong
 			}
 			else{
-				declar.setEnabled(false);
+				declare.setEnabled(false);
 			}
-			jouer.setEnabled(true);
-			prendre.setEnabled(false);
+			play.setEnabled(true);
+			takeOthersTile.setEnabled(false);
 		}
-		else{	// les ordinateurs jouent 
-			declar.setEnabled(false);
-			jouer.setEnabled(false);
-			prendre.setEnabled(false);
-			IAJoue(aQuiDeJouer);
+		else{	// the computers player 
+			declare.setEnabled(false);
+			play.setEnabled(false);
+			takeOthersTile.setEnabled(false);
+			IAJoue(nowPlayer);
 		}
 	}
 
@@ -821,7 +823,7 @@ public class Main extends JFrame {
 	/**
 	 * Initialise les joueurs
 	 */
-	void initJoueurs(){    	
+	void initPlayers(){    	
 		//reinitialisation des joueurs
 		for(int j=0; j<4; j++){
 			players[j].mainPlayer = new Game(14);
@@ -845,7 +847,7 @@ public class Main extends JFrame {
 		}
 		//une Tile de plus pour le joueur de l'est
 		for(int i=0; i<4; i++){
-			if(players[i].風==ひがし){
+			if(players[i].風==EAST){
 				players[i].addsTile(pick[indexPick++]);
 			}
 		}
@@ -857,7 +859,7 @@ public class Main extends JFrame {
 	 * Fait piocher 1 Tiles au joueur j
 	 * Retourne la position de la Tile dans la mainCache
 	 */
-	int piocheTiles(Player j){
+	int pickTiles(Player j){
 		int t = -1;
 		if(indexPick<NB_Tiles){
 			
@@ -870,16 +872,16 @@ public class Main extends JFrame {
 			t = j.addsTile(pick[indexPick++]);
 		
 			if(j.numero==0){
-				displayText("Vous piochez le "+pick[indexPick-1].name);
+				displayText("你抽到了 "+pick[indexPick-1].name);
 			}
-			System.out.print(j.name+" pioche le "+pick[indexPick-1].name+"\n");
-			labelRest.setText("Tiles restantes: "+(NB_Tiles-indexPick));
+			System.out.print(j.name+" pick the "+pick[indexPick-1].name+"\n");
+			labelRest.setText("Tiles remaining: "+(NB_Tiles-indexPick));
 		}
 		return t;
 	}
 
 	/**
-	 * Le joueur a appuy�sur le bouton D嶰larer
+	 * Le joueur a appuy�sur le bouton Declarer
 	 * Permet de d憝larer des kong cach�ou un Mahjong 
 	 */
 	void declarer()
@@ -888,9 +890,9 @@ public class Main extends JFrame {
 		boolean temp;
 
 		if(players[0].aMahjong()){
-			reponse=JOptionPane.showConfirmDialog(null, "Vous avez un Mahjong!\nVoulez vous le d嶰larer?","MAHJONG!!!",  JOptionPane.YES_NO_OPTION);
-			if(reponse == 0){	// le joueur d嶰lare un Mahjong
-				finPartie(0);
+			reponse=JOptionPane.showConfirmDialog(null, "Vous avez un Mahjong!\nVoulez vous le declarer?","MAHJONG!!!",  JOptionPane.YES_NO_OPTION);
+			if(reponse == 0){	// le joueur declare un Mahjong
+				finPart(0);
 				return;
 			}
 		}
@@ -898,8 +900,8 @@ public class Main extends JFrame {
 		if(reponse!=0){
 			nb = players[0].槓();
 			if(nb>=0){
-				reponse=JOptionPane.showConfirmDialog(null, "Vous avez un kong de "+players[0].mainPlayer.figures[nb].name()+".\nVoulez vous le d嶰larer?","D幨aration",  JOptionPane.YES_NO_OPTION);
-				if(reponse == 0){	// d嶰laration du kong
+				reponse=JOptionPane.showConfirmDialog(null, "Vous avez un kong de "+players[0].mainPlayer.figures[nb].name()+".\nVoulez vous le declarer?","D幨aration",  JOptionPane.YES_NO_OPTION);
+				if(reponse == 0){	// declaration du kong
 					// ajoute toutes les Tiles correspondantes dans la poubelle
 					trash_can.declare(players[0].mainPlayer.figures[nb].tile,4);
 
@@ -908,30 +910,30 @@ public class Main extends JFrame {
 					trash_can.affiche(players[0].mainPlayer);
 
 					if(indexPick<NB_Tiles){	// y a-t-il assez de Tiles?
-						piocheTiles(players[0]);
+						pickTiles(players[0]);
 						do{
 							temp = players[0].declareHonor();
-							if(temp) piocheTiles(players[0]);
+							if(temp) pickTiles(players[0]);
 						}while(temp);
 					}
 					if(indexPick>=NB_Tiles){
 						if(players[0].aMahjong()){
-							finPartie(0);
+							finPart(0);
 						}else{
-							finPartie(-1);	// plus de Tile donc fin de la partie
+							finPart(-1);	// plus de Tile donc fin de la partie
 						}
 						return;
 					}
 				}
 			}
 		}
-		players[0].affiche();
-		// v廨ifie si le joueur peut encore d嶰larer
+		players[0].poster();
+		// v廨ifie si le joueur peut encore declarer
 		if(players[0].槓()>=0 || players[0].aMahjong()){
-			declar.setEnabled(true);
+			declare.setEnabled(true);
 		}
 		else{
-			declar.setEnabled(false);
+			declare.setEnabled(false);
 		}
 	}
 
@@ -942,24 +944,24 @@ public class Main extends JFrame {
 		Tile discard = trash_can.getDiscard();
 		if(timer.isRunning()){	// le timer tourne dc le joueur a demand�de passer au joueur suivant 
 			timer.stop();
-			jouer.setText("Jouer");
-			jouer.setEnabled(true);
-			prendre.setEnabled(false);
+			play.setText("Jouer");
+			play.setEnabled(true);
+			takeOthersTile.setEnabled(false);
 
 			// v廨ifie si les ordi peuvent prendre la Tile jet嶪 pour faire mahjong
 			for(int i=1; i<4; i++){
 				if(players[i].canMahjong(discard)){
 					players[i].addsTile(discard);
 					players[i].declareFigure(discard, false);
-					aQuiDeJouer = i;
+					nowPlayer = i;
 					trash_can.takeDiscardedTile();
-					finPartie(i);
+					finPart(i);
 					return;
 				}
 			}
 			// v廨ifie si les ordi peuvent prendre la Tile jet嶪 pour faire une combi
 			for(int i=1; i<4; i++){
-				if(players[i].canPrendre(discard) && aQuiDeJouer!=i){ // ce joueur peut prendre ?
+				if(players[i].canTake(discard) && nowPlayer!=i){ // ce joueur peut prendre ?
 					int cpt = 0;
 
 					System.out.print(players[i].name+"prend la Tile\n");
@@ -970,47 +972,47 @@ public class Main extends JFrame {
 
 					trash_can.declare(discard, cpt-1); //ajoute les Tiles �la poubelle
 					trash_can.takeDiscardedTile();
-					players[aQuiDeJouer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur precedent
-					aQuiDeJouer = i;
-					if(cpt==4){// si le joueur d嶰lare un kong, il doit piocher
-						partie(true);
+					players[nowPlayer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur precedent
+					nowPlayer = i;
+					if(cpt==4){// si le joueur declare un kong, il doit piocher
+						part(true);
 					}
 					else{
-						partie(false);
+						part(false);
 					}
 					return;		// retour car ce prog est fait n'importe comment...
 				}
 			}
 			// personne ne peut prendre la Tile
 			trash_can.flushDiscardedTile();
-			aQuiDeJouer = (aQuiDeJouer+1)%4;	//joueur suivant
-			partie(true);
+			nowPlayer = (nowPlayer+1)%4;	//joueur suivant
+			part(true);
 		}
 		else{ // le joueur joue 
 			Tile t = new Tile();
 			int i = players[0].TileSelect;
 
-			if(players[0].TileSelect != -1){	//il faut avoir s幨嶰tionner une Tile pour jouer
+			if(players[0].TileSelect != -1){	//il faut avoir s幨ectionner une Tile pour jouer
 				t = players[0].retireTile(i);
 				players[0].labelCover[i].setBounds(X+37*i, Y, 37, 49);
 				players[0].TileSelect = -1;
 				trash_can.discardTile(t);
-				jouer.setEnabled(false);
-				declar.setEnabled(false);
-				prendre.setEnabled(false);
+				play.setEnabled(false);
+				declare.setEnabled(false);
+				takeOthersTile.setEnabled(false);
 
 				//poubelle.add(t, 1);
 				trash_can.affiche(players[0].mainPlayer);
 
-				displayText("Vous jettez le "+ t.name);
+				displayText("你丟出了 "+ t.name);
 				
-				players[0].affiche();
+				players[0].poster();
 
 				timerCpt = 2;	//lance le timer pour 2s 
 				timer.start();
 			}
 			else{
-				// pas de Tile s幨嶰tionn嶪
+				// pas de Tile s幨ectionn嶪
 			}
 		}
 	}
@@ -1018,14 +1020,14 @@ public class Main extends JFrame {
 	/**
 	 * Le joueur a appuy�sur le bouton Prendre 
 	 */
-	void prendre(){
+	void takeDisgard(){
 		int cpt = 0;
 		Tile discard = trash_can.getDiscard();
 
 		timer.stop();
-		jouer.setText("Jouer");
-		jouer.setEnabled(true);
-		prendre.setEnabled(false);
+		play.setText("Jouer");
+		play.setEnabled(true);
+		takeOthersTile.setEnabled(false);
 
 		System.out.print("Vous prenez la Tile\n");
 		// Si le jouer peut faire Mahjong avec la Tile
@@ -1033,7 +1035,7 @@ public class Main extends JFrame {
 			players[0].addsTile(discard);
 			players[0].declareFigure(discard, false);
 			trash_can.takeDiscardedTile();
-			finPartie(0);
+			finPart(0);
 		}
 		else{ // sinon c'est juste une combi
 
@@ -1043,14 +1045,14 @@ public class Main extends JFrame {
 			trash_can.takeDiscardedTile();
 			trash_can.declare(discard, cpt-1); //ajoute les Tiles �la poubelle
 
-			players[aQuiDeJouer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur precedent
-			aQuiDeJouer = 0;
+			players[nowPlayer].labelWind.setForeground(new Color(0,0,0));	//remet en noir le joueur precedent
+			nowPlayer = 0;
 			trash_can.affiche(players[0].mainPlayer);
 			if(cpt == 4){	// c t un kong don le joueur peut piocher
-				partie(true);
+				part(true);
 			}
 			else{
-				partie(false);
+				part(false);
 			}
 		}
 	}
@@ -1059,42 +1061,42 @@ public class Main extends JFrame {
 	 * Fonction qui fait jouer chaque joueur
 	 * doitPiocher : TRUE si le joueur a le droit de piocher
 	 */
-	void partie(boolean doitPiocher){
+	void part(boolean mustDraw){
 		boolean temp;
 		int temp2 = -1; //temp2 est la position de la derni鋨e Tile pioch嶪
 		boolean declarKong;
 
 		//pour debug: detecte incoherence du nb de Tile dans un jeu
-		if(doitPiocher==true){
-			if((players[aQuiDeJouer].mainPlayer.getNbTile()%3)!=1){
-				Object[] obj = {"BUG: "+players[aQuiDeJouer].name+" a "+players[aQuiDeJouer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb1).\nPr憝enir Raf :-D"};
+		if(mustDraw==true){
+			if((players[nowPlayer].mainPlayer.getNbTile()%3)!=1){
+				Object[] obj = {"BUG: "+players[nowPlayer].name+" a "+players[nowPlayer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb1).\nPr憝enir Raf :-D"};
 				JOptionPane.showMessageDialog(null,obj,"Bug Report",JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		else{
 			//le joueur n'a pas �piocher
-			if((players[aQuiDeJouer].mainPlayer.getNbTile()%3)!=2){
-				Object[] obj = {"BUG: "+players[aQuiDeJouer].name+" a "+players[aQuiDeJouer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb2).\nPr憝enir Raf :-D"};
+			if((players[nowPlayer].mainPlayer.getNbTile()%3)!=2){
+				Object[] obj = {"BUG: "+players[nowPlayer].name+" a "+players[nowPlayer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb2).\nPr憝enir Raf :-D"};
 				JOptionPane.showMessageDialog(null,obj,"Bug Report",JOptionPane.ERROR_MESSAGE);
 			}
 		}
 
 
-		players[aQuiDeJouer].labelWind.setForeground(new Color(220,40,40));
-		players[(aQuiDeJouer+3)%4].labelWind.setForeground(new Color(0,0,0));
+		players[nowPlayer].labelWind.setForeground(new Color(220,40,40));
+		players[(nowPlayer+3)%4].labelWind.setForeground(new Color(0,0,0));
 
-		if(doitPiocher == true){
+		if(mustDraw == true){
 			// le joueur pioche une Tile
 			if(indexPick<NB_Tiles){
-				temp2 = piocheTiles(players[aQuiDeJouer]);
+				temp2 = pickTiles(players[nowPlayer]);
 				
-				// d嶰laration des fleurs et saisons et des nouveau kong
+				// declaration des fleurs et saisons et des nouveau kong
 				do{
-					temp = players[aQuiDeJouer].declareHonor();
-					declarKong = players[aQuiDeJouer].declareKong();
+					temp = players[nowPlayer].declareHonor();
+					declarKong = players[nowPlayer].declareKong();
 					
-					if(temp) temp2 = piocheTiles(players[aQuiDeJouer]);
-					if(declarKong) temp2 = piocheTiles(players[aQuiDeJouer]);
+					if(temp) temp2 = pickTiles(players[nowPlayer]);
+					if(declarKong) temp2 = pickTiles(players[nowPlayer]);
 				}while(temp || declarKong);
 			}
 		}
@@ -1102,75 +1104,75 @@ public class Main extends JFrame {
 
 		if(indexPick>=NB_Tiles){ // plus de Tile
 			//check si la derni鋨e Tile �fait Mahjong
-			if(players[aQuiDeJouer].aMahjong()){
-				finPartie(aQuiDeJouer);
+			if(players[nowPlayer].aMahjong()){
+				finPart(nowPlayer);
 			}
 			else{
-				finPartie(-1);
+				finPart(-1);
 			}
 			return;
 		}
 		else{
 			// c'est au joueur de jouer
-			if(aQuiDeJouer == 0){
+			if(nowPlayer == 0){
 				if(temp2 >=0){	// si le joueur a pioch�une Tile, on la sureleve
-					players[0].labelCover[temp2].setBounds(X+37*temp2, Y-10, 37, 49);	//d嶰alage vers le haut
+					players[0].labelCover[temp2].setBounds(X+37*temp2, Y-10, 37, 49);	//decalage vers le haut
 					players[0].TileSelect = temp2;									//m幦orisation de la Tile
 				}
 
 				if(players[0].槓()>=0 || players[0].aMahjong()){
-					declar.setEnabled(true);
+					declare.setEnabled(true);
 				}
-				jouer.setText("Jouer");
-				jouer.setEnabled(true);
+				play.setText("Jouer");
+				play.setEnabled(true);
 				
 				//pour debug: detecte incoherence du nb de Tile dans un jeu
-				if((players[aQuiDeJouer].mainPlayer.getNbTile()%3)!=2){
-					Object[] obj = {"BUG: "+players[aQuiDeJouer].name+" a "+players[aQuiDeJouer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb3).\nPr憝enir Raf :-D"};
+				if((players[nowPlayer].mainPlayer.getNbTile()%3)!=2){
+					Object[] obj = {"BUG: "+players[nowPlayer].name+" a "+players[nowPlayer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb3).\nPr憝enir Raf :-D"};
 					JOptionPane.showMessageDialog(null,obj,"Bug Report",JOptionPane.ERROR_MESSAGE);
 				}
-				players[aQuiDeJouer].affiche();	// rafraichissement de l'affichage
+				players[nowPlayer].poster();	// rafraichissement de l'affichage
 			}
 			// les ordinateurs jouent
 			else{	
-				if(players[aQuiDeJouer].aMahjong()){
-					finPartie(aQuiDeJouer);
+				if(players[nowPlayer].aMahjong()){
+					finPart(nowPlayer);
 					return;
 				}
 				else{
-					//d嶰laration des kong cach廥
-					int nb = players[aQuiDeJouer].槓();
+					//declaration des kong cach廥
+					int nb = players[nowPlayer].槓();
 					while(nb>=0){
-						System.out.print(players[aQuiDeJouer].name+" d嶰lare un kong de "+players[aQuiDeJouer].mainPlayer.figures[nb].name()+"\n");
+						System.out.print(players[nowPlayer].name+" 決定槓  "+players[nowPlayer].mainPlayer.figures[nb].name()+"\n");
 
-						trash_can.declare(players[aQuiDeJouer].mainPlayer.figures[nb].tile,4);
-						players[aQuiDeJouer].declareFigure(players[aQuiDeJouer].mainPlayer.figures[nb].tile,true);
+						trash_can.declare(players[nowPlayer].mainPlayer.figures[nb].tile,4);
+						players[nowPlayer].declareFigure(players[nowPlayer].mainPlayer.figures[nb].tile,true);
 						trash_can.affiche(players[0].mainPlayer);
 						if(indexPick<NB_Tiles){
-							piocheTiles(players[aQuiDeJouer]);
-							// d嶰laration des fleurs et saisons
+							pickTiles(players[nowPlayer]);
+							// declaration des fleurs et saisons
 							do{
-								temp = players[aQuiDeJouer].declareHonor();
-								if(temp) piocheTiles(players[aQuiDeJouer]);
+								temp = players[nowPlayer].declareHonor();
+								if(temp) pickTiles(players[nowPlayer]);
 							}while(temp);
 						}
 						if(indexPick>=NB_Tiles){
-							if(players[aQuiDeJouer].aMahjong()){
-								finPartie(aQuiDeJouer);
+							if(players[nowPlayer].aMahjong()){
+								finPart(nowPlayer);
 							}else{
-								finPartie(-1);
+								finPart(-1);
 							}
 							return;
 						}
-						nb = players[aQuiDeJouer].槓();
+						nb = players[nowPlayer].槓();
 					}
-					jouer.setEnabled(false);
-					prendre.setEnabled(false);
-					IAJoue(aQuiDeJouer);
+					play.setEnabled(false);
+					takeOthersTile.setEnabled(false);
+					IAJoue(nowPlayer);
 					
 					//pour debug: detecte incoherence du nb de Tile dans un jeu
-					if((players[aQuiDeJouer].mainPlayer.getNbTile()%3)!=1){
-						Object[] obj = {"BUG: "+players[aQuiDeJouer].name+" a "+players[aQuiDeJouer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb4).\nPr憝enir Raf :-D"};
+					if((players[nowPlayer].mainPlayer.getNbTile()%3)!=1){
+						Object[] obj = {"BUG: "+players[nowPlayer].name+" a "+players[nowPlayer].mainPlayer.getNbTile()+" Tiles cach嶪 (prb4).\nPr憝enir Raf :-D"};
 						JOptionPane.showMessageDialog(null,obj,"Bug Report",JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -1182,7 +1184,7 @@ public class Main extends JFrame {
 	 * G鋨e la fin de la partie
 	 * gagnant : -1 si personne n'a gagn� num廨o du joueur gagnant sinon
 	 */
-	void finPartie(int gagnant){
+	void finPart(int winner){
 		int reponse;
 
 		timer.stop();
@@ -1192,12 +1194,12 @@ public class Main extends JFrame {
 		boolean temp = montreJeu;
 		montreJeu = true;
 		for(int i=0; i<4; i++){
-			players[i].affiche();
+			players[i].poster();
 		}
 		montreJeu = temp;
 
-		if(gagnant<0){ //pas de gagnant
-			reponse=JOptionPane.showConfirmDialog(null, "La partie s'est finie sans mahjong.\n On Continue?","Fin de partie",  JOptionPane.YES_NO_OPTION);
+		if(winner<0){ //pas de gagnant
+			reponse=JOptionPane.showConfirmDialog(null, "La partie s'est finie sans mahjong.\n On Continue?","Fin the turn",  JOptionPane.YES_NO_OPTION);
 			if(reponse == 0){
 				nouvellePartie(false);
 			}
@@ -1206,9 +1208,9 @@ public class Main extends JFrame {
 			}
 		}
 		else{	// on a un gagnant
-			if(gagnant == 0){
+			if(winner == 0){
 				if(players[0].aMahjongSpecial()>0){
-					Object[] obj = {"Vous venez de r嶧liser un Mahjong Sp嶰ial!\n      ----\""+NOM_MAHJONG_SPE[players[0].aMahjongSpecial()]+"\"----\n BIEN JOUER!"};
+					Object[] obj = {"Vous venez de r嶧liser un Mahjong Special!\n      ----\""+NOM_MAHJONG_SPE[players[0].aMahjongSpecial()]+"\"----\n BIEN JOUER!"};
 					JOptionPane.showMessageDialog(null,obj,"Fin de la partie",JOptionPane.INFORMATION_MESSAGE);					
 				}
 				else{
@@ -1217,15 +1219,15 @@ public class Main extends JFrame {
 				}
 			}
 			else{
-				Object[] obj = {"Dommage, c'est "+players[gagnant].name+"(J"+(players[gagnant].numero+1)+") qui a gagn�la partie"};
+				Object[] obj = {"Dommage, c'est "+players[winner].name+"(J"+(players[winner].numero+1)+") qui a gagn�la partie"};
 				JOptionPane.showMessageDialog(null,obj,"Fin de la partie",JOptionPane.INFORMATION_MESSAGE);
 			}
 
-			calculScore(gagnant);	//calcul des scores
+			calculScore(winner);	//calcul des scores
 
 			reponse=JOptionPane.showConfirmDialog(null, "Partie suivante?","Fin de partie",  JOptionPane.YES_NO_OPTION);
 			if(reponse == 0){
-				if(players[gagnant].風 == ひがし){
+				if(players[winner].風 == EAST){
 					nouvellePartie(true);
 				}
 				else{
@@ -1251,12 +1253,12 @@ public class Main extends JFrame {
 		trash_can.discardTile(t);
 		trash_can.affiche(players[0].mainPlayer);
 
-		displayText(players[aQuiDeJouer].name+"(J"+(players[aQuiDeJouer].numero+1)+") jette le "+ t.name);
+		displayText(players[nowPlayer].name+"(J"+(players[nowPlayer].numero+1)+") 丟出了 "+ t.name);
 
-		players[j].affiche();
+		players[j].poster();
 		
-		if((players[0].canPrendre(t))){  
-			prendre.setEnabled(true);	 //si le joueur peut perndre la Tile, on active le bouton Prendre 
+		if((players[0].canTake(t))){  
+			takeOthersTile.setEnabled(true);	 //si le joueur peut perndre la Tile, on active le bouton Prendre 
 		}
 		timerCpt = 10;
 		timer.start();
@@ -1268,7 +1270,7 @@ public class Main extends JFrame {
 	 */
 	int IAChoixTile(Player j){
 		Random rand = new Random();
-		int figChoisie = 0,cpt =0;
+		int figChoice = 0,cpt =0;
 		Tile t;
 		Game jeuTemp = new Game(j.mainPlayer);
 
@@ -1276,13 +1278,13 @@ public class Main extends JFrame {
 		case 0:
 		default:
 			do{ // on jete une Tile au hasard sauf si l'ordi poss鋄e plus d'1 exemplaire 
-				figChoisie = rand.nextInt(14);
-				if(cpt++>14 && j.mainPlayer.figures[figChoisie].isFree() == false){
+				figChoice = rand.nextInt(14);
+				if(cpt++>14 && j.mainPlayer.figures[figChoice].isFree() == false){
 					break;
 				}
 				cpt++;
-			}while(j.mainPlayer.figures[figChoisie].isFree() == true 
-					|| j.canPrendre(j.mainPlayer.figures[figChoisie].tile));
+			}while(j.mainPlayer.figures[figChoice].isFree() == true 
+					|| j.canTake(j.mainPlayer.figures[figChoice].tile));
 		break;
 
 		case 1:
@@ -1295,18 +1297,18 @@ public class Main extends JFrame {
 
 			if(jeuTemp.getFirstFig(3,DESCENDANT)>=0){		//s'il y a des Tiles jet嶪s plus de 3 fois
 				t = new Tile(jeuTemp.figures[rand.nextInt(jeuTemp.getFirstFig(3,DESCENDANT)+1)].tile);	//on en prend une au hasard
-				figChoisie = j.mainPlayer.getFigFromTile(t);							//et on retrouve la figure qui y correspond dans la main
+				figChoice = j.mainPlayer.getFigFromTile(t);							//et on retrouve la figure qui y correspond dans la main
 
 			}
 			else{ // il n'y a que des Tiles qui ont 彋�j彋�une fois ou jamais
 				do{ // on jete une Tile au hasard sauf si l'ordi poss鋄e plus d'1 exemplaire 
-					figChoisie = rand.nextInt(14);
-					if(cpt++>14 && j.mainPlayer.figures[figChoisie].isFree() == false){
+					figChoice = rand.nextInt(14);
+					if(cpt++>14 && j.mainPlayer.figures[figChoice].isFree() == false){
 						break;
 					}
 					cpt++;
-				}while(j.mainPlayer.figures[figChoisie].isFree() == true 
-						|| j.canPrendre(j.mainPlayer.figures[figChoisie].tile));
+				}while(j.mainPlayer.figures[figChoice].isFree() == true 
+						|| j.canTake(j.mainPlayer.figures[figChoice].tile));
 			}
 			break;
 
@@ -1320,22 +1322,22 @@ public class Main extends JFrame {
 
 			if(jeuTemp.getFirstFig(3,DESCENDANT)>=0){		//s'il y a des Tiles jet嶪s plus de 3 fois
 				t = new Tile(jeuTemp.figures[rand.nextInt(jeuTemp.getFirstFig(3,DESCENDANT)+1)].tile);	//on en prend une au hasard
-				figChoisie = j.mainPlayer.getFigFromTile(t);							//et on retrouve la figure qui y correspond dans la main
+				figChoice = j.mainPlayer.getFigFromTile(t);							//et on retrouve la figure qui y correspond dans la main
 
 			}
 			else if(jeuTemp.getFirstFig(2,DESCENDANT)>=0){	//s'il y a des Tiles jet嶪s plus de 2 fois
 				t = new Tile(jeuTemp.figures[rand.nextInt(jeuTemp.getFirstFig(2,DESCENDANT)+1)].tile);	//on en prend une au hasard
-				figChoisie = j.mainPlayer.getFigFromTile(t);							//on en prend une au hasard
+				figChoice = j.mainPlayer.getFigFromTile(t);							//on en prend une au hasard
 			}
 			else{ // il n'y a que des Tiles qui ont 彋�j彋�une fois ou jamais
 				do{ // on jete une Tile au hasard sauf si l'ordi poss鋄e plus d'1 exemplaire 
-					figChoisie = rand.nextInt(14);
-					if(cpt++>14 && j.mainPlayer.figures[figChoisie].isFree() == false){
+					figChoice = rand.nextInt(14);
+					if(cpt++>14 && j.mainPlayer.figures[figChoice].isFree() == false){
 						break;
 					}
 					cpt++;
-				}while(j.mainPlayer.figures[figChoisie].isFree() == true 
-						|| j.canPrendre(j.mainPlayer.figures[figChoisie].tile));
+				}while(j.mainPlayer.figures[figChoice].isFree() == true 
+						|| j.canTake(j.mainPlayer.figures[figChoice].tile));
 			}
 			break;
 
@@ -1359,17 +1361,17 @@ public class Main extends JFrame {
 				cpt++;
 			}
 			t = new Tile(jeuTemp.figures[rand.nextInt(jeuTemp.getFirstFig(cpt,ASCENDANT)-index)+index+1].tile);	//on en prend une au hasard
-			figChoisie = j.mainPlayer.getFigFromTile(t);
+			figChoice = j.mainPlayer.getFigFromTile(t);
 			break;
 		}
-		return figChoisie;
+		return figChoice;
 	}
 
 	/**
 	 * Calcul et affiche les scores des joueurs
 	 * gagnant: num廨o du joueur gagnant
 	 */
-	void calculScore(int gagnant){
+	void calculScore(int winner){
 		int[] valeurMain = new int[4];
 		int[] bonus = new int[4];
 		int[] multiMain = new int[4];
@@ -1379,15 +1381,15 @@ public class Main extends JFrame {
 
 		// calcul des scores des jeux (score intermediaire)
 		for(int i =0; i<4; i++){
-			// Score pour nahjong sp嶰iaux
-			if(i==0 && gagnant==0 && mahjongSpe>0){
+			// Score pour nahjong speciaux
+			if(i==0 && winner==0 && mahjongSpe>0){
 				valeurMain[i] = SCORE_MAHJONG_SPE[mahjongSpe];
 				bonus[i]=0;
 				multiMain[i] =0;
 			}
 			// Score pour mahjong normaux
 			else{
-				if(i == gagnant){
+				if(i == winner){
 					valeurMain[i] = players[i].valeurMains(true,players[i].風);
 					bonus[i] = 20;
 				}
@@ -1396,7 +1398,7 @@ public class Main extends JFrame {
 					bonus[i] = 0;
 				}
 				multiMain[i] = players[i].multiMains(players[i].風);
-				multiMain[i] += players[i].multiBonus(i==gagnant);
+				multiMain[i] += players[i].multiBonus(i==winner);
 			}
 			scoreInter[i] = (int)((valeurMain[i]+bonus[i])*Math.pow(2,multiMain[i]));
 			scoreFinal[i]=0;
@@ -1437,12 +1439,12 @@ public class Main extends JFrame {
 		for(int i = 0;i<4;i++){
 			for(int j = 0; j<4; j++){
 				if(i!=j){	// ce ne sont pas les mm joueurs
-					if(i == gagnant){		// je suis gagnant
-						if(scoreInter[i]<scoreInter[j] && players[i].風==ひがし){	//l'autre a un score plus grand que moi et je suis EST
+					if(i == winner){		// je suis gagnant
+						if(scoreInter[i]<scoreInter[j] && players[i].風==EAST){	//l'autre a un score plus grand que moi et je suis EST
 							scoreFinal[i]-= 4*(scoreInter[j]-scoreInter[i]);	// je lui donne 4* la diff de nos score
 						}
 						else{										// conditions normales
-							if(players[i].風==ひがし || players[j].風==ひがし){	// si je suis EST ou que l'aute est EST
+							if(players[i].風==EAST || players[j].風==EAST){	// si je suis EST ou que l'aute est EST
 								scoreFinal[i]+= 2*scoreInter[i];					// je recoit 2* mon score
 							}
 							else{
@@ -1451,12 +1453,12 @@ public class Main extends JFrame {
 						}
 					}
 					else{	// j'ai perdu
-						if(j == gagnant){	// l'autre a gagn�							
-							if(scoreInter[i]>scoreInter[j] && players[j].風==ひがし){	//j'ai un score plus grand et le gagnant est EST
+						if(j == winner){	// l'autre a gagn�							
+							if(scoreInter[i]>scoreInter[j] && players[j].風==EAST){	//j'ai un score plus grand et le gagnant est EST
 								scoreFinal[i]+= 4*(scoreInter[i]-scoreInter[j]);	// je re蔞is 4* la diff de nos score
 							}
 							else{
-								if(players[i].風==ひがし || players[j].風==ひがし){	// si je suis EST ou que l'aute est EST
+								if(players[i].風==EAST || players[j].風==EAST){	// si je suis EST ou que l'aute est EST
 									scoreFinal[i]-= 2*scoreInter[j];					// je donne 2* son score �l'autre
 								}
 								else{
@@ -1465,10 +1467,10 @@ public class Main extends JFrame {
 							}
 						}
 						else{	// nous avons tout les 2 perdus
-							if(players[i].風==ひがし){	// si je suis EST 
+							if(players[i].風==EAST){	// si je suis EST 
 								scoreFinal[i]+= 2*scoreInter[i]-scoreInter[j];	// mon score compte double
 							}
-							else if(players[j].風==ひがし){ //l'autre est EST
+							else if(players[j].風==EAST){ //l'autre est EST
 								scoreFinal[i]+= scoreInter[i]- 2*scoreInter[j];	// son score compte double
 							}
 							else{
@@ -1486,7 +1488,7 @@ public class Main extends JFrame {
 			Object[] obj = {"BUG: La somme des scores de la partie n'est pas nulle.\nPr憝enir Raf :-D"};
 			JOptionPane.showMessageDialog(null,obj,"Bug Report",JOptionPane.ERROR_MESSAGE);
 			
-			calculScore(gagnant);
+			calculScore(winner);
 		}
 		JPanel tabScore2 = new JPanel();
 		tabScore2.setLayout(new GridLayout(5, 5));    
@@ -1500,12 +1502,12 @@ public class Main extends JFrame {
 		tabScore2.add(new Label(String.valueOf(scoreInter[1]),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(scoreInter[2]),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(scoreInter[3]),Label.CENTER));
-		tabScore2.add(new Label("Ancien score"));
+		tabScore2.add(new Label("Former score"));
 		tabScore2.add(new Label(String.valueOf(players[0].score),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(players[1].score),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(players[2].score),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(players[3].score),Label.CENTER));
-		tabScore2.add(new Label("Gain/Perte"));
+		tabScore2.add(new Label("Gain/Loss"));
 		tabScore2.add(new Label(String.valueOf(scoreFinal[0]),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(scoreFinal[1]),Label.CENTER));
 		tabScore2.add(new Label(String.valueOf(scoreFinal[2]),Label.CENTER));
@@ -1526,7 +1528,7 @@ public class Main extends JFrame {
 
 		
 		/* maj des High scores */
-		if(gagnant == 0){
+		if(winner == 0){
 			int highScoreIdx = 5;
 			boolean isBetterScore = false;
 			
@@ -1562,14 +1564,14 @@ public class Main extends JFrame {
 		
 		tabScore.setLayout(new GridLayout(6, 2));
 		
-		tabScore.add(new Label("Meilleur Mahjong")); 
-		tabScore.add(new Label("Meilleur Score Final"));
+		tabScore.add(new Label("Best Mahjong")); 
+		tabScore.add(new Label("Best Score Final"));
 		tabScore.add(new Label(""+highScore[0],Label.CENTER));
 		tabScore.add(new Label(""+bestScore,Label.CENTER));
 		tabScore.add(new Label(""+highScore[1],Label.CENTER));
 		tabScore.add(new Label("",Label.CENTER));
 		tabScore.add(new Label(""+highScore[2],Label.CENTER));
-		tabScore.add(new Label("Plus Mauvais Score Final",Label.CENTER));
+		tabScore.add(new Label("Plus bad Score Final",Label.CENTER));
 		tabScore.add(new Label(""+highScore[3],Label.CENTER));
 		tabScore.add(new Label(""+worstScore,Label.CENTER));
 		tabScore.add(new Label(""+highScore[4],Label.CENTER));

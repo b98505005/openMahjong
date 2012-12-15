@@ -112,7 +112,7 @@ public class Figure {
 	public int getValue(boolean winner, int vent){
 		
 		int score = 0;
-		switch (tile.color){
+		switch (tile.牌面種類){
 		case 'f':
 		case 's':
 			score = 4;	//fleur/saison : 4pts
@@ -125,14 +125,14 @@ public class Figure {
 			else if(type == Main.typeFig.GUNG){
 				score = 16;	//kong dragon/vent : 16pts
 			}
-			else if(winner &&((tile.color == 'd' || (tile.color =='v' && (tile.牌面==Main.ventDominant || tile.牌面==(vent)))))){
+			else if(winner &&((tile.牌面種類 == 'd' || (tile.牌面種類 =='v' && (tile.牌面大小==Main.windDominant || tile.牌面大小==(vent)))))){
 				score = 2;	// une paire du vent dominant ou du joueur ou de dragon vaut 2 point si le joueur est gagnant
 			}
 			break;
 		case 'c':
 		case 'r':
 		case 'b':
-			if(tile.牌面 == 1 || tile.牌面 == 9){
+			if(tile.牌面大小 == 1 || tile.牌面大小 == 9){
 				if(type == Main.typeFig.PONG){
 					score = 8;	// pung de 1/9 rond/bamboo/caract�牠s : 8pts
 				}
@@ -164,16 +164,16 @@ public class Figure {
 	public int getMulti(int wind){
 		int multi = 0;
 		if((type == Main.typeFig.PONG) ||(type == Main.typeFig.GUNG)){
-			if(tile.color == 'd'){	// un double pour une combi de dragon
+			if(tile.牌面種類 == 'd'){	// un double pour une combi de dragon
 				multi += 1;
 			}
-			if((tile.color == 'v') && tile.牌面 == (wind+1)){
+			if((tile.牌面種類 == 'v') && tile.牌面大小 == (wind+1)){
 				multi +=1;		// un double une combi du vent du joueur 
 			}
-			if( tile.color == 'v' && tile.牌面 == Main.ventDominant){
+			if( tile.牌面種類 == 'v' && tile.牌面大小 == Main.windDominant){
 				multi +=1;		// un double pour une combi du vent dominant 
 			}
-		}else if((tile.color == 'f' || tile.color == 's') && tile.牌面 == (wind+1)){
+		}else if((tile.牌面種類 == 'f' || tile.牌面種類 == 's') && tile.牌面大小 == (wind+1)){
 			multi +=1;		// un double pour la saison/fleur du joueur
 		}
 		
@@ -192,11 +192,11 @@ public class Figure {
 	}
 	
 	public boolean is字牌(){
-		return (tile.color == 's') || (tile.color == 'f'); 
+		return (tile.牌面種類 == 's') || (tile.牌面種類 == 'f'); 
 	}
 	
 	public boolean isNormal(){
-		return (tile.color == 'c') || (tile.color == 'r')|| (tile.color == 'b'); 
+		return (tile.牌面種類 == 'c') || (tile.牌面種類 == 'r')|| (tile.牌面種類 == 'b'); 
 	}
 	
 	public String name(){
@@ -204,11 +204,11 @@ public class Figure {
 	}
 	
 	public char get_colour(){
-		return tile.color;
+		return tile.牌面種類;
 	}
 	
 	public int get_牌面(){
-		return tile.牌面;
+		return tile.牌面大小;
 	}
 	
 	public ImageIcon donneIcon(int angle, boolean isGrayed){
