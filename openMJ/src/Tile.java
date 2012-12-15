@@ -1,9 +1,9 @@
 /*
- * Tuile.java
+ * Tile.java
  *
  * Created on 17/06/2007. Copyright Raphael (synthaxerrors@gmail.com
  *
- * Classe repr廥entant une Tuile
+ * Classe repr廥entant une Tile
  * 
  * This file is part of Open Mahjong.
  * 
@@ -28,83 +28,83 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-public class Tuile {
-	int chiffre ;
-	char couleur;
-	String nom ;
+public class Tile {
+	int 牌面 ;
+	char color;
+	String name ;
 
-	public Tuile(){
-		chiffre = 0;
-		couleur = 0;
-		nom = new String("");
+	public Tile(){
+		牌面 = 0;
+		color = 0;
+		name = new String("");
 	}
-	public Tuile(Tuile t){
-		chiffre = t.chiffre;
-		couleur = t.couleur;
-		nom = new String(t.nom);
+	public Tile(Tile t){
+		牌面 = t.牌面;
+		color = t.color;
+		name = new String(t.name);
 	}
 
-	public Tuile ( int c , char f){
-		chiffre = c ;
-		couleur = f ;
+	public Tile ( int c , char f){
+		牌面 = c ;
+		color = f ;
 		
-		switch(couleur){
+		switch(color){
 		case('c'):
-			nom = new String(c+" caract鋨e");
+			name = new String(c+" caract鋨e");
 			break;
 		case('b'):
-			nom = new String(c+" bambou");
+			name = new String(c+" bambou");
 			break;
 		case('r'):
-			nom = new String(c+" rond");
+			name = new String(c+" rond");
 			break;
 		case('d'):
-			switch(chiffre){
+			switch(牌面){
 			case(1):
-				nom = new String("dragon rouge");
+				name = new String("dragon rouge");
 				break;
 			case(2):
-				nom = new String("dragon blanc");
+				name = new String("dragon blanc");
 				break;
 			case(3):
-				nom = new String("dragon vert");
+				name = new String("dragon vert");
 				break;
 			}
 		break;
 		case('v'):
-			switch(chiffre){
+			switch(牌面){
 			case(1):
-				nom = new String("vent d'est");
+				name = new String("東風");
 				break;
 			case(2):
-				nom = new String("vent du nord");
+				name = new String("北風");
 				break;
 			case(3):
-				nom = new String("vent d'ouest");
+				name = new String("西風");
 				break;
 			case(4):
-				nom = new String("vent du sud");
+				name = new String("南風");
 				break;
 			}
 		break;
 		case('s'):
-			nom = new String("saison "+chiffre);
+			name = new String("saison "+牌面);
 			break;
 		case('f'):
-			nom = new String("fleur "+chiffre);
+			name = new String("fleur "+牌面);
 			break;
 		}
 	}
 	
 
-	public boolean estInferieure(Tuile tuile)
+	public boolean isBottom(Tile Tile)
 	{
 		boolean resultat = false;
 		
-		if(this.valeurCouleur() < tuile.valeurCouleur()){
+		if(this.valeurCouleur() < Tile.valeurCouleur()){
 			resultat = true;
-		}else if(this.valeurCouleur() == tuile.valeurCouleur()){
-			if(this.chiffre < tuile.chiffre){
+		}else if(this.valeurCouleur() == Tile.valeurCouleur()){
+			if(this.牌面 < Tile.牌面){
 				resultat = true;
 			}
 		}
@@ -113,8 +113,8 @@ public class Tuile {
 	
 	public int valeurCouleur()
 	{
-		int resultat = 0;	//valeur pour tuile 'null'
-		switch(couleur){
+		int resultat = 0;	//valeur pour Tile 'null'
+		switch(color){
 		case('b'):
 			resultat = 1; 
 			break;
@@ -157,7 +157,7 @@ public class Tuile {
 
 		if(isGrayed){
 			BufferedImage image = null; 
-			File file = new File("images/"+chiffre+couleur+".jpg");
+			File file = new File("images/"+牌面+color+".jpg");
 	        try {
 	            image = ImageIO.read(file);
 	        } catch (IOException ex) {
@@ -167,18 +167,18 @@ public class Tuile {
 	        image = Main.convertToGrayscale(image);
 	        result = new ImageIcon(image);
 		}else{
-			result = new ImageIcon("images/"+chiffre+couleur+".jpg");
+			result = new ImageIcon("images/"+牌面+color+".jpg");
 		}
 		
 		return result;
 	}
 	
-	public boolean egale(Tuile t){
-		return (this.chiffre == t.chiffre && this.couleur == t.couleur);
+	public boolean egale(Tile t){
+		return (this.牌面 == t.牌面 && this.color == t.color);
 	}
 
 	public boolean isEmpty(){
-		if(this.chiffre == 0 || this.couleur==0)
+		if(this.牌面 == 0 || this.color==0)
 			return true;
 		else
 			return false;
